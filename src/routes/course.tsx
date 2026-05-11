@@ -29,7 +29,7 @@ function CoursePage() {
         <header className="mb-10">
           <h1 className="text-4xl font-bold tracking-tight">Curriculum</h1>
           <p className="mt-2 text-muted-foreground">
-            {totalLessons} lessons across 4 modules. Take them in order or jump anywhere.
+            {totalLessons} lessons across {modules.length} modules. Take them in order or jump anywhere.
           </p>
           {user ? (
             <div className="mt-6 rounded-lg border border-border bg-card p-4">

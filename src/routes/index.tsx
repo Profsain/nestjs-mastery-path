@@ -21,7 +21,7 @@ function Landing() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/60 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              {totalLessons} interactive lessons · 4 modules
+              {totalLessons} interactive lessons · {modules.length} modules
             </div>
             <h1 className="text-balance text-5xl font-bold tracking-tight md:text-6xl">
               Master <span style={{ color: "var(--primary)" }}>NestJS</span> backend development —
