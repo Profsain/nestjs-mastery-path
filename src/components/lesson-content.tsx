@@ -1,15 +1,22 @@
 import { Fragment } from "react";
 
+type Block =
+  | { type: "p" | "h2" | "h3" | "ul" | "ol"; value: string }
+  | { type: "code"; value: string; lang?: string }
+  | { type: "table"; header: string[]; rows: string[][] }
+  | { type: "hr" };
+
 /**
- * Tiny markdown renderer — supports: ## heading, ### subheading,
- * fenced code blocks ```lang ... ```, paragraphs, - lists, **bold**, `inline`.
+ * Markdown-style renderer: ## h2, ### h3, fenced code, paragraphs, - / 1. lists,
+ * tables (| a | b |), --- hr, **bold**, `inline`.
  */
 export function LessonContent({ source }: { source: string }) {
-  const blocks: { type: "p" | "h2" | "h3" | "ul" | "code"; value: string; lang?: string }[] = [];
+  const blocks: Block[] = [];
   const lines = source.split("\n");
   let i = 0;
   while (i < lines.length) {
     const line = lines[i];
+
     if (line.startsWith("```")) {
       const lang = line.slice(3).trim();
       const buf: string[] = [];
@@ -22,8 +29,43 @@ export function LessonContent({ source }: { source: string }) {
       blocks.push({ type: "code", value: buf.join("\n"), lang });
       continue;
     }
-    if (line.startsWith("## ")) { blocks.push({ type: "h2", value: line.slice(3) }); i++; continue; }
-    if (line.startsWith("### ")) { blocks.push({ type: "h3", value: line.slice(4) }); i++; continue; }
+
+    if (/^\s*---\s*$/.test(line)) {
+      blocks.push({ type: "hr" });
+      i++;
+      continue;
+    }
+
+    // Table: header row | --- row | body rows
+    if (line.includes("|") && lines[i + 1] && /^\s*\|?\s*:?-{2,}/.test(lines[i + 1])) {
+      const parseRow = (s: string) =>
+        s
+          .replace(/^\s*\|/, "")
+          .replace(/\|\s*$/, "")
+          .split("|")
+          .map((c) => c.trim());
+      const header = parseRow(line);
+      i += 2;
+      const rows: string[][] = [];
+      while (i < lines.length && lines[i].includes("|") && lines[i].trim() !== "") {
+        rows.push(parseRow(lines[i]));
+        i++;
+      }
+      blocks.push({ type: "table", header, rows });
+      continue;
+    }
+
+    if (line.startsWith("## ")) {
+      blocks.push({ type: "h2", value: line.slice(3) });
+      i++;
+      continue;
+    }
+    if (line.startsWith("### ")) {
+      blocks.push({ type: "h3", value: line.slice(4) });
+      i++;
+      continue;
+    }
+
     if (line.startsWith("- ")) {
       const buf: string[] = [];
       while (i < lines.length && lines[i].startsWith("- ")) {
@@ -33,8 +75,21 @@ export function LessonContent({ source }: { source: string }) {
       blocks.push({ type: "ul", value: buf.join("\n") });
       continue;
     }
-    if (line.trim() === "") { i++; continue; }
-    // paragraph (single line)
+
+    if (/^\d+\.\s/.test(line)) {
+      const buf: string[] = [];
+      while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
+        buf.push(lines[i].replace(/^\d+\.\s/, ""));
+        i++;
+      }
+      blocks.push({ type: "ol", value: buf.join("\n") });
+      continue;
+    }
+
+    if (line.trim() === "") {
+      i++;
+      continue;
+    }
     blocks.push({ type: "p", value: line });
     i++;
   }
@@ -44,6 +99,7 @@ export function LessonContent({ source }: { source: string }) {
       {blocks.map((b, idx) => {
         if (b.type === "h2") return <h2 key={idx}>{b.value}</h2>;
         if (b.type === "h3") return <h3 key={idx}>{b.value}</h3>;
+        if (b.type === "hr") return <hr key={idx} />;
         if (b.type === "code")
           return (
             <pre key={idx}>
@@ -58,6 +114,37 @@ export function LessonContent({ source }: { source: string }) {
               ))}
             </ul>
           );
+        if (b.type === "ol")
+          return (
+            <ol key={idx}>
+              {b.value.split("\n").map((li, j) => (
+                <li key={j}>{renderInline(li)}</li>
+              ))}
+            </ol>
+          );
+        if (b.type === "table")
+          return (
+            <div key={idx} className="lesson-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    {b.header.map((h, j) => (
+                      <th key={j}>{renderInline(h)}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {b.rows.map((row, ri) => (
+                    <tr key={ri}>
+                      {row.map((c, ci) => (
+                        <td key={ci}>{renderInline(c)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
         return <p key={idx}>{renderInline(b.value)}</p>;
       })}
     </div>
@@ -65,7 +152,6 @@ export function LessonContent({ source }: { source: string }) {
 }
 
 function renderInline(text: string) {
-  // Split by `code` first, then **bold** inside each non-code chunk.
   const parts = text.split(/(`[^`]+`)/g);
   return parts.map((part, i) => {
     if (part.startsWith("`") && part.endsWith("`")) {
