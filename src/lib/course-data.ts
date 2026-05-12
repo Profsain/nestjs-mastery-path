@@ -3750,8 +3750,263 @@ A new engineer can clone the repo, run \`docker compose up\`, see a working app,
 Ship the capstone. Tag \`v1.0.0\`. Open the README and verify someone new to the project could ship a fix on day one. Then write a short post explaining what you built, what you'd do differently next time, and what you learned. That post — and the repo it links to — goes at the top of your portfolio.`;
 
 export const modules: Module[] = [
+  {
+    id: "foundations",
+    title: "Foundations of Professional Backend Engineering",
+    tagline: "Think like a backend engineer. Master Nest.js core architecture.",
+    icon: "Boxes",
+    video: {
+      title: "NestJS Crash Course — Build a REST API",
+      channel: "Net Ninja / freeCodeCamp",
+      query: "NestJS crash course tutorial for beginners",
+    },
+    overview: `## From the book — Chapter 1: Introduction
 
-export const allLessons = modules.flatMap((m) =>
+NestJS is a progressive Node.js framework built on top of Express. It combines OOP, Functional Programming, and Functional Reactive Programming, and uses TypeScript to enforce type safety at compile time.
+
+Topics it covers end-to-end: Dependency Injection, Authentication, ORM, REST APIs, WebSockets, Microservices, Routing, OpenAPI, CQRS, and Testing.
+
+## Nest CLI
+
+\`\`\`bash
+npm install -g @nestjs/cli
+nest new [project-name]
+nest g s [service-name]
+\`\`\`
+
+Generators include class, controller, decorator, exception, filter, gateway, guard, interceptor, middleware, module, pipe, provider, and service.
+
+## Nest-specific tools
+
+- **@Module** — defines a reusable code package (imports, exports, providers, controllers)
+- **@Injectable** — almost everything in Nest is a provider injected through constructors
+- **Middleware / Interceptor / Pipe / Guard** — the four request-layer concepts you'll master in Module 1`,
+    lessons: [
+      { id: "architecture", title: "Understanding Modern Backend Architecture", duration: "15 min", content: m1l1 },
+      { id: "environment", title: "Setting Up a Professional Nest.js Environment", duration: "20 min", content: m1l2 },
+      { id: "core-concepts", title: "Nest.js Core Concepts: Modules, Controllers, Providers", duration: "30 min", content: m1l3 },
+      { id: "typescript", title: "TypeScript for Professional Backend Engineers", duration: "25 min", content: m1l4 },
+      { id: "lifecycle", title: "The Nest.js Request Lifecycle", duration: "35 min", content: m1l5 },
+    ],
+  },
+  {
+    id: "rest-apis",
+    title: "Production-Grade REST APIs",
+    tagline: "Build scalable, validated, documented APIs the professional way.",
+    icon: "Network",
+    video: {
+      title: "Build a REST API with NestJS — CRUD, DTOs & Swagger",
+      channel: "Marius Espejo",
+      query: "NestJS REST API CRUD tutorial DTO swagger",
+    },
+    overview: `## From the book — REST APIs in Nest
+
+REST stands for Representative State Transfer and uses JSON as a transfer format. A REST request in Nest flows: client → routing → middleware → controller → service → database via ORM → response.
+
+\`\`\`ts
+@Controller('hello')
+export class HelloWorldController {
+  @Get('world')
+  printHelloWorld() { return 'Hello World'; }
+}
+\`\`\`
+
+## OpenAPI (Swagger)
+
+The \`@nestjs/swagger\` module provides decorators that describe inputs, outputs, and endpoints — exposed as live documentation at \`/docs\`.`,
+    lessons: [
+      { id: "crud", title: "Creating CRUD APIs with Nest.js", duration: "45 min", content: m2l1 },
+      { id: "validation", title: "Data Validation & Error Handling", duration: "25 min", content: m2l2 },
+      { id: "swagger", title: "API Documentation with Swagger", duration: "20 min", content: m2l3 },
+      { id: "pagination", title: "Pagination, Filtering & Search", duration: "35 min", content: m2l4 },
+      { id: "logging", title: "Logging & Monitoring", duration: "20 min", content: m2l5 },
+    ],
+  },
+  {
+    id: "auth-security",
+    title: "Authentication, Security & Authorization",
+    tagline: "Secure enterprise backend systems end-to-end.",
+    icon: "Shield",
+    video: {
+      title: "NestJS Authentication with JWT & Passport",
+      channel: "Marius Espejo",
+      query: "NestJS authentication JWT passport tutorial",
+    },
+    overview: `## From the book — Chapter 3: Authentication
+
+Authentication ensures users only access what they have permission to. **Passport** is the chosen Node middleware; with Nest it commonly uses a **JWT strategy**.
+
+\`\`\`ts
+@Injectable()
+export class AuthenticationMiddleware implements NestMiddleware {
+  constructor(private userService: UserService) {}
+  async resolve(strategy: string) {
+    return async (req, res, next) => {
+      return passport.authenticate(strategy, async (...args: any[]) => {
+        const [, payload, err] = args;
+        if (err) return res.status(HttpStatus.BAD_REQUEST).send('Unable to authenticate.');
+        req.user = await this.userService.findOne({ where: { email: payload.email } });
+        return next();
+      })(req, res, next);
+    };
+  }
+}
+\`\`\`
+
+## Guards
+
+Guards implement \`CanActivate\` and decide whether a request reaches its handler — used for role checks and resource ownership.`,
+    lessons: [
+      { id: "jwt", title: "Authentication with JWT", duration: "40 min", content: m3l1 },
+      { id: "rbac", title: "Role-Based Access Control (RBAC)", duration: "30 min", content: m3l2 },
+      { id: "passwords", title: "Password Security & Encryption", duration: "20 min", content: m3l3 },
+      { id: "api-security", title: "API Security Best Practices", duration: "30 min", content: m3l4 },
+    ],
+  },
+  {
+    id: "database",
+    title: "Scalable Database Systems",
+    tagline: "Design and manage scalable backend databases professionally.",
+    icon: "Database",
+    video: {
+      title: "NestJS + TypeORM + PostgreSQL — Full Tutorial",
+      channel: "freeCodeCamp",
+      query: "NestJS TypeORM PostgreSQL tutorial",
+    },
+    overview: `## From the book — Chapter 5: ORM
+
+An ORM maps in-memory objects (\`User\`, \`Comment\`) to relational tables. The book covers three:
+
+- **TypeORM** — mature, with \`@nestjs/typeorm\`; supports Postgres, MySQL, MariaDB, SQLite, MSSQL, Oracle
+- **Sequelize** — *the* most popular Node ORM, written in JS with TS bindings
+- **Mongoose** — for MongoDB; \`@nestjs/mongoose\` ships official integration with query chaining`,
+    lessons: [
+      { id: "fundamentals", title: "Database Fundamentals for Backend Engineers", duration: "20 min", content: m4l1 },
+      { id: "postgres", title: "Using PostgreSQL with Nest.js", duration: "45 min", content: m4l2 },
+      { id: "orm-patterns", title: "Advanced ORM Patterns", duration: "35 min", content: m4l3 },
+      { id: "redis-cache", title: "Caching with Redis", duration: "25 min", content: m4l4 },
+    ],
+  },
+  {
+    id: "microservices",
+    title: "Microservices Architecture",
+    tagline: "Build distributed systems professionally with Nest.js.",
+    icon: "Network",
+    video: {
+      title: "NestJS Microservices — TCP, Redis & RabbitMQ",
+      channel: "Marius Espejo",
+      query: "NestJS microservices tutorial TCP Redis RabbitMQ",
+    },
+    overview: `## From the book — Microservices in Nest
+
+In Nest, **microservices are applications that use a transport layer other than HTTP** — TCP, Redis pub/sub, or others (any custom transport via \`CustomTransportStrategy\`). They allow teams to work on their own service inside a global project and ship changes independently — the foundation of CI/CD at scale.
+
+## WebSockets
+
+For real-time fan-out (chat, dashboards), clients subscribe to channels; the server broadcasts to every subscriber as data arrives.`,
+    lessons: [
+      { id: "intro", title: "Introduction to Microservices", duration: "25 min", content: m5l1 },
+      { id: "first-service", title: "Building Your First Nest.js Microservice", duration: "50 min", content: m5l2 },
+      { id: "event-driven", title: "Event-Driven Architecture", duration: "35 min", content: m5l3 },
+      { id: "api-gateway", title: "API Gateway Pattern", duration: "40 min", content: m5l4 },
+      { id: "rabbitmq", title: "RabbitMQ & Message Queues", duration: "45 min", content: m5l5 },
+    ],
+  },
+  {
+    id: "performance",
+    title: "Performance with Queues & Caching",
+    tagline: "Build highly scalable systems for real-world traffic.",
+    icon: "Zap",
+    video: {
+      title: "BullMQ Background Jobs & Redis Caching with NestJS",
+      channel: "Marius Espejo",
+      query: "NestJS BullMQ Redis background jobs caching tutorial",
+    },
+    overview: `## CQRS — the mental model behind this module
+
+**Command Query Responsibility Segregation**: every method should either *perform an action* (command) or *return data* (query), not both. Controllers don't call the database directly — they delegate to a service that owns the boundary.
+
+That separation is what enables background jobs, caching, and queues without leaking concerns across layers.`,
+    lessons: [
+      { id: "bullmq", title: "Background Jobs with BullMQ", duration: "35 min", content: m6l1 },
+      { id: "notifications", title: "Email & Notification Systems", duration: "25 min", content: m6l2 },
+      { id: "redis-advanced", title: "Advanced Redis Strategies", duration: "30 min", content: m6l3 },
+      { id: "optimization", title: "Performance Optimization", duration: "40 min", content: m6l4 },
+    ],
+  },
+  {
+    id: "testing",
+    title: "Automated Testing for Confidence",
+    tagline: "Unit, integration, and E2E testing — ship without fear.",
+    icon: "FlaskConical",
+    video: {
+      title: "NestJS Testing — Unit, Integration, and E2E with Jest",
+      channel: "Marius Espejo",
+      query: "NestJS testing tutorial jest supertest unit e2e",
+    },
+    overview: `## From the book — Testing
+
+Two kinds of tests:
+
+- **Unit Tests** — testing small blocks of code (functions, controllers, interceptors, injectables). Use \`@nestjs/testing\` with \`*.spec.ts\` files.
+- **E2E Tests** — testing entire functionality end-to-end. Use **Jest** to mock and **Supertest** to simulate HTTP requests.
+
+Testing matters regardless of language or framework. Large engineering organizations have dedicated QA teams writing the tests that keep production safe.`,
+    lessons: [
+      { id: "fundamentals", title: "Testing Fundamentals", duration: "20 min", content: m7l1 },
+      { id: "unit", title: "Unit Testing with Jest", duration: "40 min", content: m7l2 },
+      { id: "integration", title: "Integration Testing", duration: "35 min", content: m7l3 },
+      { id: "e2e", title: "End-to-End Testing with Supertest", duration: "45 min", content: m7l4 },
+      { id: "cicd", title: "CI/CD Testing Pipelines", duration: "30 min", content: m7l5 },
+    ],
+  },
+  {
+    id: "docker",
+    title: "Docker, DevOps & Production Deployment",
+    tagline: "Containerize, orchestrate, and deploy professional systems.",
+    icon: "Container",
+    video: {
+      title: "Dockerize a NestJS App + Postgres with Docker Compose",
+      channel: "Marius Espejo",
+      query: "NestJS Docker docker-compose postgres production deployment",
+    },
+    overview: `## Docker, DevOps & Production Deployment
+
+Containers package your app, its OS dependencies, and its config into one shippable artifact that runs identically on a laptop, CI, staging, and production. The book even ships Nest CLI as a Docker image: \`docker pull nestjs/cli:[version]\`.
+
+This module turns containers into a full production story: multi-stage Dockerfiles, Compose for the whole stack, secrets, and a real release pipeline.`,
+    lessons: [
+      { id: "fundamentals", title: "Docker Fundamentals", duration: "25 min", content: m8l1 },
+      { id: "dockerize", title: "Dockerizing Nest.js Applications", duration: "45 min", content: m8l2 },
+      { id: "compose", title: "Docker Compose for Fullstack Systems", duration: "35 min", content: m8l3 },
+      { id: "secrets", title: "Environment Variables & Secrets Management", duration: "20 min", content: m8l4 },
+      { id: "deploy", title: "Deploying to Production", duration: "50 min", content: m8l5 },
+    ],
+  },
+  {
+    id: "capstone",
+    title: "Capstone: Enterprise Backend Platform",
+    tagline: "Apply everything — build a real-world production system.",
+    icon: "Trophy",
+    video: {
+      title: "Build & Deploy a Full NestJS Microservices Platform",
+      channel: "Marius Espejo",
+      query: "NestJS full project microservices docker production",
+    },
+    overview: `## Capstone — apply everything
+
+In the capstone you'll combine every chapter into one production-grade platform: Nest core architecture, REST APIs, JWT auth, an ORM-backed database, microservices over TCP and RabbitMQ, queues + caching, automated tests, and Docker deployment.
+
+Deliverables: architecture doc, core services, microservice integration, CI/CD with full test coverage, and a documented production deployment.`,
+    lessons: [
+      { id: "planning", title: "Project Architecture Planning", duration: "Workshop", content: m9l1 },
+      { id: "core-services", title: "Building Core Services", duration: "Workshop", content: m9l2 },
+      { id: "integration", title: "Integrating Microservices", duration: "Workshop", content: m9l3 },
+      { id: "deploy", title: "Testing & Production Deployment", duration: "Workshop", content: m9l4 },
+    ],
+  },
+];
+
   m.lessons.map((l) => ({ ...l, moduleId: m.id, moduleTitle: m.title })),
 );
 
