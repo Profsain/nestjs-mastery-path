@@ -1141,6 +1141,39 @@ This module gives you the mental model the rest of the course is built on.`,
     title: "Production-Grade REST APIs",
     tagline: "Build scalable, validated, documented APIs the professional way.",
     icon: "Network",
+    video: {
+      title: "Build a REST API with NestJS — CRUD, DTOs & Swagger",
+      channel: "Marius Espejo",
+      query: "NestJS REST API CRUD tutorial DTO swagger",
+    },
+    overview: `## From the book — REST APIs in Nest
+
+REST stands for **Representative State Transfer** and uses JSON as a transfer format, which lines up perfectly with how Nest stores objects — making it a natural fit for HTTP.
+
+A REST API in Nest combines several techniques into a clear pipeline:
+
+1. A client makes an **HTTP call** to a server
+2. The server **routes** the call to the correct **Controller** based on URL + HTTP verb
+3. The request may pass through one or more **Middlewares** before reaching the controller
+4. The controller hands the request off to a **Service** for processing
+5. The service can communicate with a **Database** through an **ORM**
+6. If all goes well, the server returns an OK response with an optional body
+
+\`\`\`ts
+@Controller('hello')
+export class HelloWorldController {
+  @Get('world')
+  printHelloWorld() {
+    return 'Hello World';
+  }
+}
+\`\`\`
+
+The Controller above is the API endpoint for \`GET /hello/world\` and returns HTTP 200 OK with \`Hello World\` in the body. This module deepens that pattern with DTOs, validation pipes, Swagger documentation, pagination, and logging — everything you need for production-grade REST.
+
+## OpenAPI (Swagger)
+
+Documentation is critical when an API will be consumed by others. Nest provides a dedicated module for the OpenAPI spec, \`@nestjs/swagger\`, with decorators to describe inputs, outputs, and endpoints. The documentation is then exposed through an endpoint on the server.`,
     lessons: [
       { id: "crud", title: "Creating CRUD APIs with Nest.js", duration: "45 min", content: outline("Creating CRUD APIs", ["REST conventions and resource design","Full CRUD operations","DTOs and request validation","Swagger documentation"], ["45-minute coding tutorial","Swagger documentation template","Coding challenge"]) },
       { id: "validation", title: "Data Validation & Error Handling", duration: "25 min", content: outline("Data Validation & Error Handling", ["class-validator deep dive","Custom pipes","Global exception filters","Consistent API response shape"], ["25-minute implementation lesson","Error-handling checklist","Quiz"]) },
