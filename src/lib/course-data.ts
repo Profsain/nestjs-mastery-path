@@ -1272,6 +1272,27 @@ This course covers three ORMs — two relational and one for NoSQL:
     title: "Microservices Architecture",
     tagline: "Build distributed systems professionally with Nest.js.",
     icon: "Network",
+    video: {
+      title: "NestJS Microservices — TCP, Redis & RabbitMQ",
+      channel: "Marius Espejo",
+      query: "NestJS microservices tutorial TCP Redis RabbitMQ",
+    },
+    overview: `## From the book — Microservices in Nest
+
+**Microservices** allow a Nest application to be structured as a collection of **loosely coupled** services. In Nest, microservices are slightly different from the typical definition because they are an application that uses a **different transport layer** other than HTTP. This layer can be **TCP**, **Redis pub/sub**, or others. Nest supports TCP and Redis out of the box, and any other transport can be implemented through the \`CustomTransportStrategy\` interface.
+
+Microservices are powerful because they allow a team to work on their own service within the global project and make changes **without affecting the rest of the project**, since the services are loosely coupled. This enables **continuous delivery and continuous integration** independent of other teams' microservices.
+
+## WebSockets — the real-time cousin
+
+WebSockets are another way to connect to and send/receive data from a server. With WebSockets, a client connects to the server and **subscribes to channels**. Clients push data to a channel, the server receives it, and broadcasts it to every subscribed client. Most chat apps use WebSockets to allow for real-time communication: everyone in a group message receives the message as soon as one member sends one.
+
+## In this module you will build
+
+- Your first Nest microservice using TCP transport
+- Event-driven architecture with pub/sub patterns
+- An API Gateway in front of multiple services
+- RabbitMQ-backed message queues with retries and DLQs`,
     lessons: [
       { id: "intro", title: "Introduction to Microservices", duration: "25 min", content: outline("Introduction to Microservices", ["Why microservices","Service boundaries","Communication patterns","Trade-offs"], ["25-minute theory lesson","Architecture diagrams","Quiz"]) },
       { id: "first-service", title: "Building Your First Nest.js Microservice", duration: "50 min", content: outline("First Microservice", ["TCP transport","Message patterns","Service communication","Hybrid apps"], ["50-minute coding workshop","Starter repo","Practice lab"]) },
