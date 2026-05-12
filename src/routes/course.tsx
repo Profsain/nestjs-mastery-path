@@ -4,7 +4,8 @@ import { modules, totalLessons } from "@/lib/course-data";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/lib/auth";
 import { Progress } from "@/components/ui/progress";
-import { Check, Lock, PlayCircle } from "lucide-react";
+import { LessonContent } from "@/components/lesson-content";
+import { Check, Lock, PlayCircle, Youtube } from "lucide-react";
 import * as Icons from "lucide-react";
 
 export const Route = createFileRoute("/course")({
