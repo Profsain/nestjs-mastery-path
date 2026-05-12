@@ -5,11 +5,21 @@ export type Lesson = {
   content: string;
 };
 
+export type ModuleVideo = {
+  title: string;
+  channel: string;
+  query: string; // YouTube search query — used to build watch link
+};
+
 export type Module = {
   id: string;
   title: string;
   tagline: string;
   icon: string;
+  /** PDF-sourced module overview rendered with the same Markdown engine as lessons. */
+  overview: string;
+  /** A curated YouTube tutorial that explains the module. */
+  video: ModuleVideo;
   lessons: Lesson[];
 };
 
