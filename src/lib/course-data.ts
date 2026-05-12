@@ -5,11 +5,21 @@ export type Lesson = {
   content: string;
 };
 
+export type ModuleVideo = {
+  title: string;
+  channel: string;
+  query: string; // YouTube search query — used to build watch link
+};
+
 export type Module = {
   id: string;
   title: string;
   tagline: string;
   icon: string;
+  /** PDF-sourced module overview rendered with the same Markdown engine as lessons. */
+  overview: string;
+  /** A curated YouTube tutorial that explains the module. */
+  video: ModuleVideo;
   lessons: Lesson[];
 };
 
@@ -1081,6 +1091,43 @@ export const modules: Module[] = [
     title: "Foundations of Professional Backend Engineering",
     tagline: "Think like a backend engineer. Master Nest.js core architecture.",
     icon: "Boxes",
+    video: {
+      title: "NestJS Crash Course — Build a REST API",
+      channel: "Net Ninja / freeCodeCamp",
+      query: "NestJS crash course tutorial for beginners",
+    },
+    overview: `## From the book — Chapter 1: Introduction
+
+Every web developer relies heavily on one web framework or another, and each has its own pros and cons. Frameworks provide a frame for developers to build on top of — the basic functionality any good web framework must offer. **NestJS** is a progressive Node.js framework that covers what professionals actually need: Dependency Injection, Authentication, ORM, REST APIs, WebSockets, Microservices, Routing, OpenAPI, CQRS, and Testing.
+
+Nest is built on top of an Express server and leverages modern ES6 JavaScript for flexibility and **TypeScript** to enforce type safety at compile time. It brings scalable Node.js servers to a whole new level by combining three techniques:
+
+1. **Object-Oriented Programming** — a model built around objects and reusability
+2. **Functional Programming** — deterministic functions that don't rely on global state
+3. **Functional Reactive Programming** — FP extended across time, useful for streams and async flows
+
+## Nest CLI
+
+New in version 5, the Nest CLI generates projects and files from the command line:
+
+\`\`\`bash
+npm install -g @nestjs/cli
+nest new [project-name]
+nest g s [service-name]   # shorthand for: nest generate service
+\`\`\`
+
+Supported generators include **class, controller, decorator, exception, filter, gateway, guard, interceptor, middleware, module, pipe, provider, service**.
+
+## Nest-specific tools
+
+- **@Module** — defines a reusable package of code with \`imports\`, \`exports\`, \`providers\`, and \`controllers\`
+- **@Injectable** — almost everything in Nest is a provider that can be injected through constructors
+- **Middleware** — runs before a request reaches the route handler
+- **Interceptor** — binds extra logic before/after a method (inspired by AOP)
+- **Pipe** — transforms input data into the desired output
+- **Guard** — decides whether a request should be handled by the route handler
+
+This module gives you the mental model the rest of the course is built on.`,
     lessons: [
       { id: "architecture", title: "Understanding Modern Backend Architecture", duration: "15 min", content: m1l1 },
       { id: "environment", title: "Setting Up a Professional Nest.js Environment", duration: "20 min", content: m1l2 },
@@ -1094,6 +1141,39 @@ export const modules: Module[] = [
     title: "Production-Grade REST APIs",
     tagline: "Build scalable, validated, documented APIs the professional way.",
     icon: "Network",
+    video: {
+      title: "Build a REST API with NestJS — CRUD, DTOs & Swagger",
+      channel: "Marius Espejo",
+      query: "NestJS REST API CRUD tutorial DTO swagger",
+    },
+    overview: `## From the book — REST APIs in Nest
+
+REST stands for **Representative State Transfer** and uses JSON as a transfer format, which lines up perfectly with how Nest stores objects — making it a natural fit for HTTP.
+
+A REST API in Nest combines several techniques into a clear pipeline:
+
+1. A client makes an **HTTP call** to a server
+2. The server **routes** the call to the correct **Controller** based on URL + HTTP verb
+3. The request may pass through one or more **Middlewares** before reaching the controller
+4. The controller hands the request off to a **Service** for processing
+5. The service can communicate with a **Database** through an **ORM**
+6. If all goes well, the server returns an OK response with an optional body
+
+\`\`\`ts
+@Controller('hello')
+export class HelloWorldController {
+  @Get('world')
+  printHelloWorld() {
+    return 'Hello World';
+  }
+}
+\`\`\`
+
+The Controller above is the API endpoint for \`GET /hello/world\` and returns HTTP 200 OK with \`Hello World\` in the body. This module deepens that pattern with DTOs, validation pipes, Swagger documentation, pagination, and logging — everything you need for production-grade REST.
+
+## OpenAPI (Swagger)
+
+Documentation is critical when an API will be consumed by others. Nest provides a dedicated module for the OpenAPI spec, \`@nestjs/swagger\`, with decorators to describe inputs, outputs, and endpoints. The documentation is then exposed through an endpoint on the server.`,
     lessons: [
       { id: "crud", title: "Creating CRUD APIs with Nest.js", duration: "45 min", content: outline("Creating CRUD APIs", ["REST conventions and resource design","Full CRUD operations","DTOs and request validation","Swagger documentation"], ["45-minute coding tutorial","Swagger documentation template","Coding challenge"]) },
       { id: "validation", title: "Data Validation & Error Handling", duration: "25 min", content: outline("Data Validation & Error Handling", ["class-validator deep dive","Custom pipes","Global exception filters","Consistent API response shape"], ["25-minute implementation lesson","Error-handling checklist","Quiz"]) },
@@ -1107,6 +1187,46 @@ export const modules: Module[] = [
     title: "Authentication, Security & Authorization",
     tagline: "Secure enterprise backend systems end-to-end.",
     icon: "Shield",
+    video: {
+      title: "NestJS Authentication with JWT & Passport",
+      channel: "Marius Espejo",
+      query: "NestJS authentication JWT passport tutorial",
+    },
+    overview: `## From the book — Chapter 3: Authentication
+
+Authentication is one of the most important aspects of development. As developers, we always want to make sure that users can only access the resources they have permission to access.
+
+Authentication takes many forms — from showing a passport at a border to providing a username and password in a login portal. On the server, we need logic to verify users **and persist** that authentication so they do not need to re-authenticate for every single API call. The chosen library for this in Node.js is ironically named **Passport**, and when integrated into Nest it commonly uses a **JWT (JSON Web Token)** strategy.
+
+Passport is middleware that the HTTP call is passed through before hitting the controller:
+
+\`\`\`ts
+@Injectable()
+export class AuthenticationMiddleware implements NestMiddleware {
+  constructor(private userService: UserService) {}
+
+  async resolve(strategy: string) {
+    return async (req, res, next) => {
+      return passport.authenticate(strategy, async (...args: any[]) => {
+        const [, payload, err] = args;
+        if (err) {
+          return res.status(HttpStatus.BAD_REQUEST)
+            .send('Unable to authenticate the user.');
+        }
+        const user = await this.userService.findOne({
+          where: { email: payload.email },
+        });
+        req.user = user;
+        return next();
+      })(req, res, next);
+    };
+  }
+}
+\`\`\`
+
+## Guards
+
+Nest also implements **Guards**, decorated with the same \`@Injectable()\` as other providers. Guards restrict certain endpoints based on what the authenticated user has access to — they have the singular purpose of determining whether a request should be handled by the route handler. This module covers JWT, RBAC, password hashing, and the API security checklist used in real production systems.`,
     lessons: [
       { id: "jwt", title: "Authentication with JWT", duration: "40 min", content: outline("Authentication with JWT", ["JWT fundamentals","Login flow design","Access vs refresh tokens","Token rotation strategies"], ["40-minute coding tutorial","Auth flow diagrams","Quiz"]) },
       { id: "rbac", title: "Role-Based Access Control (RBAC)", duration: "30 min", content: outline("RBAC", ["Guards for authorization","Role decorators","Permission strategies","Hierarchical roles"], ["30-minute coding lesson","RBAC implementation template","Assignment"]) },
@@ -1119,6 +1239,27 @@ export const modules: Module[] = [
     title: "Scalable Database Systems",
     tagline: "Design and manage scalable backend databases professionally.",
     icon: "Database",
+    video: {
+      title: "NestJS + TypeORM + PostgreSQL — Full Tutorial",
+      channel: "freeCodeCamp",
+      query: "NestJS TypeORM PostgreSQL tutorial",
+    },
+    overview: `## From the book — Chapter 5: ORM & TypeORM
+
+An **ORM** (Object-Relational Mapping) provides a mapping between objects in memory — defined classes such as \`User\` or \`Comment\` — and relational tables in a database. This lets you create a Data Transfer Object that knows how to write objects stored in memory to a database, and read SQL query results back into memory.
+
+This course covers three ORMs — two relational and one for NoSQL:
+
+- **TypeORM** — one of the most mature and popular ORMs for Node.js, with a deep feature set and an official Nest package \`@nestjs/typeorm\`. It supports MySQL, PostgreSQL, MariaDB, SQLite, MS SQL Server, Oracle, and WebSQL.
+- **Sequelize** — *the* most popular ORM in the Node.js world. Written in plain JavaScript with TypeScript bindings via \`sequelize-typescript\` and \`@types/sequelize\`. Strong transaction support, relations, and read replication.
+- **Mongoose** — handles object relations between **MongoDB** and JavaScript. The mapping is much closer than with relational databases because MongoDB stores its data in JSON. There is also an official \`@nestjs/mongoose\` package with query chaining.
+
+## What you'll build in this module
+
+- Designing relational data and modelling entities
+- Auto-generated IDs, timestamps, and column types per database
+- Relationships between models and how to store related entities
+- Caching with Redis to make those queries fly`,
     lessons: [
       { id: "fundamentals", title: "Database Fundamentals for Backend Engineers", duration: "20 min", content: outline("Database Fundamentals", ["SQL vs NoSQL","Relational modeling","Normalization","Database architecture"], ["20-minute conceptual lesson","Architecture diagrams","Quiz"]) },
       { id: "postgres", title: "Using PostgreSQL with Nest.js", duration: "45 min", content: outline("PostgreSQL with Nest.js", ["Database setup","ORM integration (TypeORM/Prisma)","Entities and schemas","Migrations"], ["45-minute coding workshop","Starter templates","Exercises"]) },
@@ -1131,6 +1272,27 @@ export const modules: Module[] = [
     title: "Microservices Architecture",
     tagline: "Build distributed systems professionally with Nest.js.",
     icon: "Network",
+    video: {
+      title: "NestJS Microservices — TCP, Redis & RabbitMQ",
+      channel: "Marius Espejo",
+      query: "NestJS microservices tutorial TCP Redis RabbitMQ",
+    },
+    overview: `## From the book — Microservices in Nest
+
+**Microservices** allow a Nest application to be structured as a collection of **loosely coupled** services. In Nest, microservices are slightly different from the typical definition because they are an application that uses a **different transport layer** other than HTTP. This layer can be **TCP**, **Redis pub/sub**, or others. Nest supports TCP and Redis out of the box, and any other transport can be implemented through the \`CustomTransportStrategy\` interface.
+
+Microservices are powerful because they allow a team to work on their own service within the global project and make changes **without affecting the rest of the project**, since the services are loosely coupled. This enables **continuous delivery and continuous integration** independent of other teams' microservices.
+
+## WebSockets — the real-time cousin
+
+WebSockets are another way to connect to and send/receive data from a server. With WebSockets, a client connects to the server and **subscribes to channels**. Clients push data to a channel, the server receives it, and broadcasts it to every subscribed client. Most chat apps use WebSockets to allow for real-time communication: everyone in a group message receives the message as soon as one member sends one.
+
+## In this module you will build
+
+- Your first Nest microservice using TCP transport
+- Event-driven architecture with pub/sub patterns
+- An API Gateway in front of multiple services
+- RabbitMQ-backed message queues with retries and DLQs`,
     lessons: [
       { id: "intro", title: "Introduction to Microservices", duration: "25 min", content: outline("Introduction to Microservices", ["Why microservices","Service boundaries","Communication patterns","Trade-offs"], ["25-minute theory lesson","Architecture diagrams","Quiz"]) },
       { id: "first-service", title: "Building Your First Nest.js Microservice", duration: "50 min", content: outline("First Microservice", ["TCP transport","Message patterns","Service communication","Hybrid apps"], ["50-minute coding workshop","Starter repo","Practice lab"]) },
@@ -1144,6 +1306,25 @@ export const modules: Module[] = [
     title: "Performance with Queues & Caching",
     tagline: "Build highly scalable systems for real-world traffic.",
     icon: "Zap",
+    video: {
+      title: "BullMQ Background Jobs & Redis Caching with NestJS",
+      channel: "Marius Espejo",
+      query: "NestJS BullMQ Redis background jobs caching tutorial",
+    },
+    overview: `## Performance — the CQRS mindset
+
+The book introduces **Command Query Responsibility Segregation (CQRS)**: the idea that each method should either be one that **performs an action (command)** or one that **requests data (query)** — but not both.
+
+In practice this means you should not have database access code directly in a controller endpoint. Instead, create a component — a Database Service — with a method such as \`getAllUsers()\` that returns all users for the controller's service to call. This **separates the question from the answer** into different components.
+
+That mindset is exactly what unlocks the performance work in this module:
+
+- **Background jobs with BullMQ** — push slow work (emails, image processing, reports) off the request path
+- **Notifications & mail queues** — durable, retryable delivery instead of blocking HTTP calls
+- **Advanced Redis** — distributed caching, session storage, rate limiting, pub/sub
+- **Performance optimization** — profiling, database indexing, query optimization, bottleneck analysis
+
+By the end of this module, your API should be able to absorb real traffic without melting.`,
     lessons: [
       { id: "bullmq", title: "Background Jobs with BullMQ", duration: "35 min", content: outline("BullMQ", ["Queue workers","Delayed jobs","Retry strategies","Job priorities"], ["35-minute coding lesson","Queue templates","Practical assignment"]) },
       { id: "notifications", title: "Email & Notification Systems", duration: "25 min", content: outline("Notification Systems", ["Mail queues","SMS workflows","Notification architecture","Templating"], ["25-minute implementation tutorial","Notification templates","Exercise"]) },
@@ -1156,6 +1337,28 @@ export const modules: Module[] = [
     title: "Automated Testing for Confidence",
     tagline: "Unit, integration, and E2E testing — ship without fear.",
     icon: "FlaskConical",
+    video: {
+      title: "NestJS Testing — Unit, Integration, and E2E with Jest",
+      channel: "Marius Espejo",
+      query: "NestJS testing tutorial jest supertest unit e2e",
+    },
+    overview: `## From the book — Testing in Nest
+
+Testing your Nest server is **imperative** so that once it is deployed there are no unforeseen issues and it runs smoothly. There are two kinds of tests you will learn here:
+
+### Unit Tests
+
+The art of testing **small snippets or blocks of code** — as granular as testing individual functions, controllers, interceptors, or any other injectable. Two popular frameworks are **Jasmine** and **Jest**. Nest provides the dedicated \`@nestjs/testing\` package for writing unit tests in \`*.spec.ts\` and \`*.test.ts\` files.
+
+### End-to-End (E2E) Tests
+
+E2E testing differs from unit testing in that it tests **entire functionality** rather than individual functions or components — hence the name "end-to-end". Eventually applications become so large it is hard to test absolutely every piece of code, so E2E tests verify the application from beginning to end.
+
+For E2E testing a Nest application, you can use **Jest** to mock components and **Supertest** to simulate HTTP requests.
+
+## Why this matters
+
+Testing is a very important part of writing applications and should not be ignored. It is relevant no matter what language or framework you end up working with. Most large-scale development companies have **entire teams dedicated to writing tests** for code that ships to production — these engineers are called QA developers. This module also wires testing into a CI/CD pipeline so every push is automatically validated.`,
     lessons: [
       { id: "fundamentals", title: "Testing Fundamentals", duration: "20 min", content: outline("Testing Fundamentals", ["Why testing matters","Unit vs integration vs E2E","Testing pyramid","Test-driven development"], ["20-minute conceptual lesson","Testing cheat sheet","Quiz"]) },
       { id: "unit", title: "Unit Testing with Jest", duration: "40 min", content: outline("Unit Testing", ["Jest fundamentals","Mocking dependencies","Testing services","DI in tests"], ["40-minute coding workshop","Reusable test templates","Exercises"]) },
@@ -1169,6 +1372,25 @@ export const modules: Module[] = [
     title: "Docker, DevOps & Production Deployment",
     tagline: "Containerize, orchestrate, and deploy professional systems.",
     icon: "Container",
+    video: {
+      title: "Dockerize a NestJS App + Postgres with Docker Compose",
+      channel: "Marius Espejo",
+      query: "NestJS Docker docker-compose postgres production deployment",
+    },
+    overview: `## Docker, DevOps & Production Deployment
+
+The book ships with a Docker-based workflow from day one: \`docker pull nestjs/cli:[version]\` to generate projects, and reproducible environments for every developer on the team. This module turns that into a full production story.
+
+## What you'll containerize
+
+- **Multi-stage Dockerfiles** — small, fast, production-ready images for your Nest app
+- **Docker Compose** — orchestrate PostgreSQL, Redis, and your API as one stack
+- **Environment & secrets** — secure \`.env\` management, config modules, and secret rotation
+- **Production deployment** — VPS, Render / Railway, Nginx reverse proxy, monitoring
+
+## The mental model
+
+A backend engineer who only knows how to run \`npm start\` cannot ship enterprise systems. A backend engineer who can build, tag, and deploy a container — and orchestrate it with its database and cache — can ship anywhere. By the end of this module your Nest project will start with a single \`docker compose up\` and deploy to production with a single command.`,
     lessons: [
       { id: "fundamentals", title: "Docker Fundamentals", duration: "25 min", content: outline("Docker Fundamentals", ["Containers explained","Docker architecture","Images vs containers","Layers and caching"], ["25-minute conceptual lesson","Docker cheat sheet","Quiz"]) },
       { id: "dockerize", title: "Dockerizing Nest.js Applications", duration: "45 min", content: outline("Dockerizing Nest.js", ["Dockerfiles","Multi-stage builds","Production optimization","Image size reduction"], ["45-minute implementation workshop","Production Docker templates","Assignment"]) },
@@ -1182,6 +1404,24 @@ export const modules: Module[] = [
     title: "Capstone: Enterprise Backend Platform",
     tagline: "Apply everything — build a real-world production system.",
     icon: "Trophy",
+    video: {
+      title: "Build & Deploy a Full NestJS Microservices Platform",
+      channel: "Marius Espejo",
+      query: "NestJS full project microservices docker production",
+    },
+    overview: `## Capstone — apply everything
+
+In the capstone you'll combine every chapter of the book into one production-grade platform: Nest core architecture, REST APIs, authentication with Passport + JWT, an ORM-backed database layer, microservices with their own transport, queues and caching for performance, automated tests, and a Docker-based deployment.
+
+## Deliverables
+
+1. **Architecture document** — service boundaries, data ownership, API contracts
+2. **Core services** — authentication, users, notifications, plus shared libraries
+3. **Microservice integration** — gateway, event bus, resilience patterns
+4. **Test coverage + CI/CD** — automated unit, integration, and E2E checks
+5. **Production deployment** — containerized, monitored, and documented
+
+This is the project you put at the top of your portfolio.`,
     lessons: [
       { id: "planning", title: "Project Architecture Planning", duration: "Workshop", content: outline("Architecture Planning", ["System design","Service boundaries","Database planning","API contracts"], ["Architecture workshop","Planning templates","System diagrams"]) },
       { id: "core-services", title: "Building Core Services", duration: "Workshop", content: outline("Core Services", ["Authentication service","User service","Notification service","Shared libraries"], ["Guided implementation videos","Source code walkthroughs","Coding labs"]) },

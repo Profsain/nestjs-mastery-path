@@ -4,7 +4,8 @@ import { modules, totalLessons } from "@/lib/course-data";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/lib/auth";
 import { Progress } from "@/components/ui/progress";
-import { Check, Lock, PlayCircle } from "lucide-react";
+import { LessonContent } from "@/components/lesson-content";
+import { Check, Lock, PlayCircle, Youtube } from "lucide-react";
 import * as Icons from "lucide-react";
 
 export const Route = createFileRoute("/course")({
@@ -73,6 +74,31 @@ function CoursePage() {
                     </span>
                   )}
                 </div>
+
+                {/* Module overview from the book */}
+                <div className="mb-4 rounded-lg border border-border bg-card p-5">
+                  <LessonContent source={m.overview} />
+                </div>
+
+                {/* YouTube tutorial card */}
+                <a
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(m.video.query)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mb-4 flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50"
+                >
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
+                    <Youtube className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                      Watch on YouTube · {m.video.channel}
+                    </p>
+                    <p className="font-medium">{m.video.title}</p>
+                  </div>
+                  <PlayCircle className="h-5 w-5 text-muted-foreground" />
+                </a>
+
                 <ul className="overflow-hidden rounded-lg border border-border bg-card">
                   {m.lessons.map((l, li) => {
                     const done = progress.isDone(l.id);
