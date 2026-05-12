@@ -1069,367 +1069,2687 @@ Build a feature module \`orders\` that uses **all five** request-layer concepts:
 
 You now understand the true internal lifecycle of Nest.js applications — the same architecture used by enterprise teams to ship secure, scalable APIs. Module 1 complete. Next module: building production-grade REST APIs with CRUD, validation, Swagger, pagination, and logging.`;
 
-// ---------- Modules 2–9 — concise lesson outlines ----------
+// ---------- Modules 2–9 — full lesson content ----------
 
-const outline = (title: string, bullets: string[], format: string[]) => `## ${title}
+// ===== Module 2: Production-Grade REST APIs =====
 
-### What you'll learn
+const m2l1 = `## Lesson Objective
 
-${bullets.map((b) => `- ${b}`).join("\n")}
+By the end of this lesson you'll be able to design and build a complete CRUD resource in Nest.js using controllers, services, DTOs, and proper REST conventions.
 
-### Lesson format
+## What REST really means in Nest
 
-${format.map((f) => `- ${f}`).join("\n")}
+The book defines REST as **Representative State Transfer** — a paradigm that uses JSON for data transfer, which lines up naturally with how Nest stores objects. A REST request in Nest flows through this pipeline:
 
-### Coming in this lesson
+1. Client sends an **HTTP call** to the server
+2. Nest **routes** the call based on URL + HTTP verb
+3. Optional **middleware** runs first
+4. The **Controller** receives the request
+5. The controller delegates to a **Service**
+6. The service may talk to a **Database** through an ORM
+7. The server returns an OK response, with a body for \`GET\` requests or status 200/201 for \`POST/PUT/DELETE\`
 
-Deep-dive instructional content for this lesson is being authored next. It will follow the same teaching style as Module 1: story-driven explanations, real-world analogies, visual mental models, guided implementation, knowledge checks, exercises, and an assignment.`;
+## Building a CRUD resource
 
-export const modules: Module[] = [
-  {
-    id: "foundations",
-    title: "Foundations of Professional Backend Engineering",
-    tagline: "Think like a backend engineer. Master Nest.js core architecture.",
-    icon: "Boxes",
-    video: {
-      title: "NestJS Crash Course — Build a REST API",
-      channel: "Net Ninja / freeCodeCamp",
-      query: "NestJS crash course tutorial for beginners",
-    },
-    overview: `## From the book — Chapter 1: Introduction
-
-Every web developer relies heavily on one web framework or another, and each has its own pros and cons. Frameworks provide a frame for developers to build on top of — the basic functionality any good web framework must offer. **NestJS** is a progressive Node.js framework that covers what professionals actually need: Dependency Injection, Authentication, ORM, REST APIs, WebSockets, Microservices, Routing, OpenAPI, CQRS, and Testing.
-
-Nest is built on top of an Express server and leverages modern ES6 JavaScript for flexibility and **TypeScript** to enforce type safety at compile time. It brings scalable Node.js servers to a whole new level by combining three techniques:
-
-1. **Object-Oriented Programming** — a model built around objects and reusability
-2. **Functional Programming** — deterministic functions that don't rely on global state
-3. **Functional Reactive Programming** — FP extended across time, useful for streams and async flows
-
-## Nest CLI
-
-New in version 5, the Nest CLI generates projects and files from the command line:
+Generate the scaffolding with the CLI:
 
 \`\`\`bash
-npm install -g @nestjs/cli
-nest new [project-name]
-nest g s [service-name]   # shorthand for: nest generate service
+nest g resource entries
 \`\`\`
 
-Supported generators include **class, controller, decorator, exception, filter, gateway, guard, interceptor, middleware, module, pipe, provider, service**.
-
-## Nest-specific tools
-
-- **@Module** — defines a reusable package of code with \`imports\`, \`exports\`, \`providers\`, and \`controllers\`
-- **@Injectable** — almost everything in Nest is a provider that can be injected through constructors
-- **Middleware** — runs before a request reaches the route handler
-- **Interceptor** — binds extra logic before/after a method (inspired by AOP)
-- **Pipe** — transforms input data into the desired output
-- **Guard** — decides whether a request should be handled by the route handler
-
-This module gives you the mental model the rest of the course is built on.`,
-    lessons: [
-      { id: "architecture", title: "Understanding Modern Backend Architecture", duration: "15 min", content: m1l1 },
-      { id: "environment", title: "Setting Up a Professional Nest.js Environment", duration: "20 min", content: m1l2 },
-      { id: "core-concepts", title: "Nest.js Core Concepts: Modules, Controllers, Providers", duration: "30 min", content: m1l3 },
-      { id: "typescript", title: "TypeScript for Professional Backend Engineers", duration: "25 min", content: m1l4 },
-      { id: "lifecycle", title: "The Nest.js Request Lifecycle", duration: "35 min", content: m1l5 },
-    ],
-  },
-  {
-    id: "rest-apis",
-    title: "Production-Grade REST APIs",
-    tagline: "Build scalable, validated, documented APIs the professional way.",
-    icon: "Network",
-    video: {
-      title: "Build a REST API with NestJS — CRUD, DTOs & Swagger",
-      channel: "Marius Espejo",
-      query: "NestJS REST API CRUD tutorial DTO swagger",
-    },
-    overview: `## From the book — REST APIs in Nest
-
-REST stands for **Representative State Transfer** and uses JSON as a transfer format, which lines up perfectly with how Nest stores objects — making it a natural fit for HTTP.
-
-A REST API in Nest combines several techniques into a clear pipeline:
-
-1. A client makes an **HTTP call** to a server
-2. The server **routes** the call to the correct **Controller** based on URL + HTTP verb
-3. The request may pass through one or more **Middlewares** before reaching the controller
-4. The controller hands the request off to a **Service** for processing
-5. The service can communicate with a **Database** through an **ORM**
-6. If all goes well, the server returns an OK response with an optional body
+The CLI creates a module, controller, service, DTO files, and an entity stub. Here is a complete CRUD controller:
 
 \`\`\`ts
-@Controller('hello')
-export class HelloWorldController {
-  @Get('world')
-  printHelloWorld() {
-    return 'Hello World';
+@Controller('entries')
+export class EntryController {
+  constructor(private readonly entries: EntryService) {}
+
+  @Get()
+  findAll(): Promise<Entry[]> {
+    return this.entries.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.entries.findById(+id);
+  }
+
+  @Post()
+  create(@Body() dto: CreateEntryDto) {
+    return this.entries.create(dto);
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() dto: UpdateEntryDto) {
+    return this.entries.update(+id, dto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.entries.remove(+id);
   }
 }
 \`\`\`
 
-The Controller above is the API endpoint for \`GET /hello/world\` and returns HTTP 200 OK with \`Hello World\` in the body. This module deepens that pattern with DTOs, validation pipes, Swagger documentation, pagination, and logging — everything you need for production-grade REST.
+## DTOs — the contract between client and API
 
-## OpenAPI (Swagger)
+A Data Transfer Object describes the *shape* of incoming data. DTOs separate the public API contract from your internal entity:
 
-Documentation is critical when an API will be consumed by others. Nest provides a dedicated module for the OpenAPI spec, \`@nestjs/swagger\`, with decorators to describe inputs, outputs, and endpoints. The documentation is then exposed through an endpoint on the server.`,
-    lessons: [
-      { id: "crud", title: "Creating CRUD APIs with Nest.js", duration: "45 min", content: outline("Creating CRUD APIs", ["REST conventions and resource design","Full CRUD operations","DTOs and request validation","Swagger documentation"], ["45-minute coding tutorial","Swagger documentation template","Coding challenge"]) },
-      { id: "validation", title: "Data Validation & Error Handling", duration: "25 min", content: outline("Data Validation & Error Handling", ["class-validator deep dive","Custom pipes","Global exception filters","Consistent API response shape"], ["25-minute implementation lesson","Error-handling checklist","Quiz"]) },
-      { id: "swagger", title: "API Documentation with Swagger", duration: "20 min", content: outline("API Documentation with Swagger", ["OpenAPI fundamentals","Swagger module setup","API versioning","Documentation best practices"], ["20-minute tutorial","Swagger starter config","Practical exercise"]) },
-      { id: "pagination", title: "Pagination, Filtering & Search", duration: "35 min", content: outline("Pagination, Filtering & Search", ["Query parameter design","Cursor vs offset pagination","Sorting strategies","Search optimization"], ["35-minute implementation video","Reusable utility templates","Mini project"]) },
-      { id: "logging", title: "Logging & Monitoring", duration: "20 min", content: outline("Logging & Monitoring", ["Nest Logger service","Request tracing","Error logging","Debugging strategies"], ["20-minute implementation session","Logging template","Monitoring checklist"]) },
-    ],
-  },
-  {
-    id: "auth-security",
-    title: "Authentication, Security & Authorization",
-    tagline: "Secure enterprise backend systems end-to-end.",
-    icon: "Shield",
-    video: {
-      title: "NestJS Authentication with JWT & Passport",
-      channel: "Marius Espejo",
-      query: "NestJS authentication JWT passport tutorial",
-    },
-    overview: `## From the book — Chapter 3: Authentication
+\`\`\`ts
+export class CreateEntryDto {
+  @IsString()  @MinLength(3)  title: string;
+  @IsString()  @MinLength(10) body: string;
+  @IsOptional() @IsBoolean()  published?: boolean;
+}
+\`\`\`
 
-Authentication is one of the most important aspects of development. As developers, we always want to make sure that users can only access the resources they have permission to access.
+## Resource design rules
 
-Authentication takes many forms — from showing a passport at a border to providing a username and password in a login portal. On the server, we need logic to verify users **and persist** that authentication so they do not need to re-authenticate for every single API call. The chosen library for this in Node.js is ironically named **Passport**, and when integrated into Nest it commonly uses a **JWT (JSON Web Token)** strategy.
+- One resource per controller — \`/entries\`, \`/users\`, \`/comments\`
+- Use HTTP verbs semantically: \`GET\` read, \`POST\` create, \`PUT/PATCH\` update, \`DELETE\` remove
+- Always return JSON (Nest does this by default)
+- Status codes mean something: 200 OK, 201 Created, 204 No Content, 404 Not Found
 
-Passport is middleware that the HTTP call is passed through before hitting the controller:
+## Exercise
+
+Build a \`/posts\` resource with full CRUD, a DTO with validation, and proper status codes for create (201) and delete (204).
+
+## Assignment
+
+Design a \`/tasks\` API with sub-resources \`/tasks/:id/comments\`. Document each endpoint's verb, path, payload, and response code.`;
+
+const m2l2 = `## Lesson Objective
+
+Master class-validator, validation pipes, and global exception filters so your API never accepts bad data and never leaks raw errors.
+
+## Validation pipes
+
+Nest's \`ValidationPipe\` reads the metadata on a DTO and rejects invalid payloads automatically. Enable it globally in \`main.ts\`:
+
+\`\`\`ts
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,       // strip unknown fields
+    forbidNonWhitelisted: true,
+    transform: true,       // auto-convert types (e.g. string → number)
+  }));
+  await app.listen(3000);
+}
+\`\`\`
+
+## class-validator decorators
+
+\`\`\`ts
+export class CreateUserDto {
+  @IsEmail()                email: string;
+  @MinLength(8)             password: string;
+  @IsOptional() @IsInt()    age?: number;
+  @IsEnum(['admin','user']) role: string;
+}
+\`\`\`
+
+If a client posts \`{ email: "not-an-email" }\`, Nest responds with a 400 Bad Request automatically — no manual checks in your service.
+
+## Global exception filter
+
+Without a filter, errors leak stack traces. With one, you return a consistent shape:
+
+\`\`\`ts
+@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const res = ctx.getResponse();
+    const status =
+      exception instanceof HttpException ? exception.getStatus() : 500;
+
+    res.status(status).json({
+      statusCode: status,
+      message: exception instanceof HttpException
+        ? exception.message
+        : 'Internal server error',
+      timestamp: new Date().toISOString(),
+      path: ctx.getRequest().url,
+    });
+  }
+}
+\`\`\`
+
+Register globally: \`app.useGlobalFilters(new AllExceptionsFilter());\`
+
+## Throwing meaningful errors
+
+\`\`\`ts
+if (!user) throw new NotFoundException('User not found');
+if (!isOwner) throw new ForbiddenException();
+if (emailTaken) throw new ConflictException('Email already in use');
+\`\`\`
+
+## Exercise
+
+Build a \`UpdateProductDto\` with field-level validation, a global filter that logs every 5xx error, and a custom \`@IsStrongPassword()\` validator.
+
+## Assignment
+
+Audit your existing endpoints and document for each: which DTO validates input, which exceptions are thrown, what response shape clients see.`;
+
+const m2l3 = `## Lesson Objective
+
+Document your API automatically with Swagger (OpenAPI) so frontend teams and partners can consume it without asking you questions.
+
+## Why OpenAPI matters
+
+The book stresses that documentation is critical when an API will be consumed by others — otherwise the client developer doesn't know what to send or what they get back. **Swagger** is the most popular documentation engine, and Nest ships an official module: \`@nestjs/swagger\`.
+
+## Setup
+
+\`\`\`bash
+npm install @nestjs/swagger swagger-ui-express
+\`\`\`
+
+\`\`\`ts
+// main.ts
+const config = new DocumentBuilder()
+  .setTitle('Blog API')
+  .setDescription('Production REST API for the blog example')
+  .setVersion('1.0')
+  .addBearerAuth()
+  .build();
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('docs', app, document);
+\`\`\`
+
+Visit \`http://localhost:3000/docs\` for a live, interactive UI.
+
+## Decorating DTOs and controllers
+
+\`\`\`ts
+export class CreateEntryDto {
+  @ApiProperty({ example: 'Hello Nest' })
+  title: string;
+
+  @ApiProperty({ example: 'Long form post body…' })
+  body: string;
+
+  @ApiPropertyOptional({ default: false })
+  published?: boolean;
+}
+
+@ApiTags('entries')
+@Controller('entries')
+export class EntryController {
+  @Post()
+  @ApiOperation({ summary: 'Create a blog entry' })
+  @ApiResponse({ status: 201, description: 'Entry created' })
+  create(@Body() dto: CreateEntryDto) { /* ... */ }
+}
+\`\`\`
+
+## API versioning
+
+\`\`\`ts
+app.enableVersioning({ type: VersioningType.URI });
+
+@Controller({ path: 'entries', version: '1' })
+export class EntryControllerV1 {}
+\`\`\`
+
+Now \`/v1/entries\` is the URL — and you can ship v2 without breaking clients.
+
+## Practices
+
+- Document every public DTO field with \`@ApiProperty\`
+- Group routes with \`@ApiTags\`
+- Add examples, not just types — examples make docs usable
+- Keep the OpenAPI JSON in version control to track API changes in PRs
+
+## Assignment
+
+Wire Swagger into your CRUD module, version your routes, and export the OpenAPI JSON. Open a PR titled "API v1 published" with the JSON attached.`;
+
+const m2l4 = `## Lesson Objective
+
+Implement scalable pagination, filtering, sorting, and search using query parameters — the patterns real-world APIs depend on.
+
+## The problem with \`GET /users\`
+
+Without limits, returning every row is a denial-of-service against your own database. Real APIs always paginate.
+
+## Offset pagination
+
+Simple, familiar, but slow at high page numbers:
+
+\`\`\`ts
+@Get()
+async findAll(
+  @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+) {
+  const [items, total] = await this.repo.findAndCount({
+    skip: (page - 1) * limit,
+    take: Math.min(limit, 100),
+  });
+  return { items, total, page, pageCount: Math.ceil(total / limit) };
+}
+\`\`\`
+
+## Cursor pagination
+
+Better for large datasets and infinite scroll — uses an opaque cursor instead of a page number:
+
+\`\`\`ts
+@Get()
+async list(@Query('cursor') cursor?: string, @Query('limit') limit = '20') {
+  const take = Math.min(+limit, 100);
+  const where = cursor ? { id: LessThan(+cursor) } : {};
+  const rows = await this.repo.find({
+    where, take, order: { id: 'DESC' },
+  });
+  const next = rows.length === take ? String(rows[rows.length - 1].id) : null;
+  return { items: rows, nextCursor: next };
+}
+\`\`\`
+
+## Filtering and sorting
+
+\`\`\`ts
+@Get()
+list(@Query() q: ListQueryDto) {
+  return this.service.list(q);
+}
+
+export class ListQueryDto {
+  @IsOptional() @IsString()  search?: string;
+  @IsOptional() @IsIn(['title','createdAt']) sortBy?: string;
+  @IsOptional() @IsIn(['asc','desc']) sortDir?: 'asc' | 'desc';
+}
+\`\`\`
+
+## Search
+
+For small datasets, a SQL \`ILIKE '%term%'\` is fine. For real search, index with PostgreSQL full-text search or hand off to Elasticsearch / Meilisearch.
+
+## Reusable utility
+
+Build a generic \`paginate(repo, dto)\` helper so every resource gets the same shape: \`{ items, total, page, pageCount }\`.
+
+## Assignment
+
+Add paginated, filterable, searchable \`/posts\` and \`/comments\` endpoints. Benchmark cursor vs offset at 1M rows and write up the result.`;
+
+const m2l5 = `## Lesson Objective
+
+Add structured logging, request tracing, and basic monitoring so production incidents are debuggable instead of mysterious.
+
+## The built-in Logger
 
 \`\`\`ts
 @Injectable()
-export class AuthenticationMiddleware implements NestMiddleware {
-  constructor(private userService: UserService) {}
+export class OrderService {
+  private readonly logger = new Logger(OrderService.name);
 
-  async resolve(strategy: string) {
-    return async (req, res, next) => {
-      return passport.authenticate(strategy, async (...args: any[]) => {
-        const [, payload, err] = args;
-        if (err) {
-          return res.status(HttpStatus.BAD_REQUEST)
-            .send('Unable to authenticate the user.');
-        }
-        const user = await this.userService.findOne({
-          where: { email: payload.email },
-        });
-        req.user = user;
-        return next();
-      })(req, res, next);
+  async place(order: CreateOrderDto) {
+    this.logger.log(\`Placing order for user \${order.userId}\`);
+    try {
+      // ...
+    } catch (err) {
+      this.logger.error('Order failed', err.stack);
+      throw err;
+    }
+  }
+}
+\`\`\`
+
+## Request logging middleware
+
+\`\`\`ts
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  private logger = new Logger('HTTP');
+  use(req: Request, res: Response, next: NextFunction) {
+    const start = Date.now();
+    res.on('finish', () => {
+      this.logger.log(
+        \`\${req.method} \${req.originalUrl} \${res.statusCode} \${Date.now() - start}ms\`,
+      );
+    });
+    next();
+  }
+}
+\`\`\`
+
+## Request tracing with correlation IDs
+
+Every incoming request gets a UUID; every downstream log line includes it. When something breaks at 3 AM you grep one ID and see the entire request:
+
+\`\`\`ts
+app.use((req, _res, next) => {
+  req.headers['x-request-id'] ??= randomUUID();
+  next();
+});
+\`\`\`
+
+## Pino for structured JSON logs
+
+Plain text is unsearchable. JSON logs let Datadog, Loki, or CloudWatch index every field:
+
+\`\`\`bash
+npm install nestjs-pino pino-http
+\`\`\`
+
+\`\`\`ts
+@Module({ imports: [LoggerModule.forRoot()] })
+export class AppModule {}
+\`\`\`
+
+## What to log (and what not to)
+
+- ✅ Request method, path, status, duration, user id, request id
+- ✅ Domain events: "order placed", "payment refunded"
+- ❌ Passwords, tokens, full credit card numbers, PII
+- ❌ "Entering function X" — useless noise
+
+## Health checks
+
+\`@nestjs/terminus\` exposes \`/health\` returning DB, Redis, and external service status — used by load balancers and Kubernetes.
+
+## Assignment
+
+Wire structured JSON logging with a correlation ID, add a \`/health\` endpoint, and ship a Grafana/Datadog dashboard with request rate, error rate, p95 latency.`;
+
+// ===== Module 3: Authentication, Security & Authorization =====
+
+const m3l1 = `## Lesson Objective
+
+Implement complete JWT authentication using \`@nestjs/passport\` — the same approach the book walks through in Chapter 3.
+
+## Why JWT
+
+The book lists three common Passport strategies: **local** (email + password), **jwt** (token-based, used heavily), and social (Google, Facebook, Twitter). JWT works because once the user logs in, every subsequent call carries a signed token; the server verifies it without hitting the database.
+
+## Install
+
+\`\`\`bash
+npm install @nestjs/passport passport passport-jwt @nestjs/jwt bcrypt
+npm install -D @types/passport-jwt @types/bcrypt
+\`\`\`
+
+## The auth service
+
+\`\`\`ts
+@Injectable()
+export class AuthService {
+  constructor(
+    private users: UsersService,
+    private jwt: JwtService,
+  ) {}
+
+  async validateUser(email: string, password: string) {
+    const user = await this.users.findByEmail(email);
+    if (user && await bcrypt.compare(password, user.passwordHash)) {
+      return user;
+    }
+    return null;
+  }
+
+  async login(user: User) {
+    const payload = { sub: user.id, email: user.email };
+    return {
+      access_token: this.jwt.sign(payload, { expiresIn: '15m' }),
+      refresh_token: this.jwt.sign(payload, { expiresIn: '7d' }),
     };
   }
 }
 \`\`\`
 
-## Guards
+## The JWT strategy
 
-Nest also implements **Guards**, decorated with the same \`@Injectable()\` as other providers. Guards restrict certain endpoints based on what the authenticated user has access to — they have the singular purpose of determining whether a request should be handled by the route handler. This module covers JWT, RBAC, password hashing, and the API security checklist used in real production systems.`,
-    lessons: [
-      { id: "jwt", title: "Authentication with JWT", duration: "40 min", content: outline("Authentication with JWT", ["JWT fundamentals","Login flow design","Access vs refresh tokens","Token rotation strategies"], ["40-minute coding tutorial","Auth flow diagrams","Quiz"]) },
-      { id: "rbac", title: "Role-Based Access Control (RBAC)", duration: "30 min", content: outline("RBAC", ["Guards for authorization","Role decorators","Permission strategies","Hierarchical roles"], ["30-minute coding lesson","RBAC implementation template","Assignment"]) },
-      { id: "passwords", title: "Password Security & Encryption", duration: "20 min", content: outline("Password Security", ["Hashing algorithms","bcrypt deep dive","Environment variables","Secure credential management"], ["20-minute lesson","Security checklist","Practical lab"]) },
-      { id: "api-security", title: "API Security Best Practices", duration: "30 min", content: outline("API Security", ["CORS configuration","Helmet middleware","Rate limiting","Input sanitization"], ["30-minute implementation video","Security audit worksheet","Quiz"]) },
-    ],
+\`\`\`ts
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET,
+    });
+  }
+  async validate(payload: any) {
+    return { userId: payload.sub, email: payload.email };
+  }
+}
+\`\`\`
+
+## Protecting routes
+
+\`\`\`ts
+@UseGuards(AuthGuard('jwt'))
+@Get('me')
+getProfile(@Request() req) {
+  return req.user;
+}
+\`\`\`
+
+## Access vs refresh tokens
+
+- **Access token** — short-lived (15m), sent on every request
+- **Refresh token** — long-lived (7d), used only to mint new access tokens, stored httpOnly
+- Rotate refresh tokens on every use; revoke on logout
+
+## Assignment
+
+Build \`POST /auth/login\`, \`POST /auth/refresh\`, \`POST /auth/logout\`, and a protected \`GET /me\`. Store refresh tokens in the database so logout is real.`;
+
+const m3l2 = `## Lesson Objective
+
+Add role-based authorization on top of authentication using a custom \`Roles\` decorator and a \`RolesGuard\`.
+
+## Guards are how Nest does authorization
+
+The book describes a \`CheckLoggedInUserGuard\` that only allows a user to access their own data. Guards run **after** middleware and **before** pipes, and they have access to the \`ExecutionContext\` so they know exactly what is being evaluated.
+
+## Roles decorator
+
+\`\`\`ts
+export const ROLES_KEY = 'roles';
+export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
+\`\`\`
+
+## Roles guard
+
+\`\`\`ts
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(ctx: ExecutionContext): boolean {
+    const required = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ]);
+    if (!required) return true;
+    const { user } = ctx.switchToHttp().getRequest();
+    return required.some((r) => user.roles?.includes(r));
+  }
+}
+\`\`\`
+
+## Using it
+
+\`\`\`ts
+@UseGuards(AuthGuard('jwt'), RolesGuard)
+@Roles('admin')
+@Delete('users/:id')
+remove(@Param('id') id: string) {
+  return this.users.remove(+id);
+}
+\`\`\`
+
+## Resource-level ownership
+
+Roles aren't enough on their own. A "user" role shouldn't be able to delete *another* user's post. Combine role checks with ownership checks — exactly like the book's \`CheckLoggedInUserGuard\`:
+
+\`\`\`ts
+canActivate(ctx: ExecutionContext) {
+  const req = ctx.switchToHttp().getRequest();
+  return Number(req.params.userId) === req.user.id;
+}
+\`\`\`
+
+## Hierarchical roles
+
+\`\`\`ts
+const hierarchy = { admin: 3, editor: 2, user: 1 };
+const has = (userRole, needed) => hierarchy[userRole] >= hierarchy[needed];
+\`\`\`
+
+## Assignment
+
+Implement \`admin\`, \`editor\`, \`user\` roles. Admin manages users, editor manages posts, user can only edit their own posts. Write a guard for each rule and an integration test that proves it.`;
+
+const m3l3 = `## Lesson Objective
+
+Never store plaintext passwords. Use bcrypt correctly, manage secrets through environment variables, and design a credential layer that survives a database breach.
+
+## Hashing with bcrypt
+
+\`\`\`ts
+const SALT_ROUNDS = 12;
+
+@Injectable()
+export class PasswordService {
+  hash(plain: string): Promise<string> {
+    return bcrypt.hash(plain, SALT_ROUNDS);
+  }
+
+  verify(plain: string, hash: string): Promise<boolean> {
+    return bcrypt.compare(plain, hash);
+  }
+}
+\`\`\`
+
+Why bcrypt: it's slow on purpose. 12 rounds takes ~250ms — fine for a login, deadly for an attacker trying to crack a million stolen hashes.
+
+## Argon2 — the modern alternative
+
+\`\`\`bash
+npm install argon2
+\`\`\`
+
+\`\`\`ts
+import * as argon2 from 'argon2';
+const hash = await argon2.hash(plain, { type: argon2.argon2id });
+const ok = await argon2.verify(hash, plain);
+\`\`\`
+
+Argon2id is the current OWASP recommendation. Both bcrypt and Argon2 are acceptable — never use SHA-256 or MD5 for passwords.
+
+## Environment variables
+
+\`\`\`ts
+// app.module.ts
+ConfigModule.forRoot({
+  isGlobal: true,
+  validationSchema: Joi.object({
+    JWT_SECRET: Joi.string().min(32).required(),
+    DATABASE_URL: Joi.string().required(),
+  }),
+}),
+\`\`\`
+
+Never commit \`.env\`. Rotate secrets when a developer leaves. Use a secret manager (AWS Secrets Manager, GCP Secret Manager, Doppler) in production.
+
+## Password rules that actually help
+
+- Minimum 12 characters, no maximum (let users use passphrases)
+- Check against the HIBP "Pwned Passwords" list
+- Don't force frequent rotation — that pushes users to weaker passwords
+- Always offer 2FA
+
+## Account safety
+
+- Rate-limit login attempts per IP and per account
+- Send an email on password change
+- Invalidate all sessions on password change
+
+## Assignment
+
+Implement signup with bcrypt, login rate limiting (5 attempts / 15 min), and a "compromised password" check during signup. Document your threat model.`;
+
+const m3l4 = `## Lesson Objective
+
+Apply the production API security checklist: CORS, Helmet, rate limiting, input sanitization, and secure headers.
+
+## CORS
+
+\`\`\`ts
+app.enableCors({
+  origin: process.env.CORS_ORIGIN?.split(',') ?? false,
+  credentials: true,
+});
+\`\`\`
+
+Never use \`origin: '*'\` with \`credentials: true\` — that combination is rejected by browsers and a sign of misconfiguration.
+
+## Helmet
+
+\`\`\`bash
+npm install helmet
+\`\`\`
+
+\`\`\`ts
+import helmet from 'helmet';
+app.use(helmet());
+\`\`\`
+
+Helmet sets \`Strict-Transport-Security\`, \`X-Content-Type-Options\`, \`X-Frame-Options\`, and a Content Security Policy — turning on a dozen browser protections in one line.
+
+## Rate limiting
+
+\`\`\`bash
+npm install @nestjs/throttler
+\`\`\`
+
+\`\`\`ts
+@Module({
+  imports: [ThrottlerModule.forRoot([{ ttl: 60_000, limit: 100 }])],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+})
+export class AppModule {}
+\`\`\`
+
+Tighter limits on auth routes:
+
+\`\`\`ts
+@Throttle({ default: { limit: 5, ttl: 60_000 } })
+@Post('login')
+\`\`\`
+
+## Input sanitization
+
+Validation isn't sanitization. For HTML inputs, strip script tags with \`sanitize-html\`. Use parameterized queries through your ORM — never concatenate SQL.
+
+## HTTPS everywhere
+
+Terminate TLS at your reverse proxy (Nginx, Caddy, Cloudflare). Redirect HTTP → HTTPS. Set \`secure: true\` on cookies.
+
+## Secrets in logs
+
+Add a log redactor so tokens, passwords, and PII never end up in log aggregators:
+
+\`\`\`ts
+LoggerModule.forRoot({
+  pinoHttp: { redact: ['req.headers.authorization', 'res.body.password'] },
+}),
+\`\`\`
+
+## OWASP Top 10 quick map
+
+Injection → ORM + validation. Broken auth → JWT + bcrypt. Sensitive data exposure → HTTPS + secrets manager. Broken access control → Guards + ownership checks.
+
+## Assignment
+
+Run an audit on your existing API. Submit a checklist of which OWASP Top 10 issue each control mitigates.`;
+
+// ===== Module 4: Scalable Database Systems =====
+
+const m4l1 = `## Lesson Objective
+
+Understand the trade-offs between SQL and NoSQL, learn relational modelling and normalization, and choose the right database for the job.
+
+## What an ORM gives you
+
+The book defines an **ORM** as an Object-Relational Mapping — a layer that translates between in-memory objects (a \`User\` or \`Comment\` class) and rows in a relational database. The ORM lets you create a Data Transfer Object that knows how to write objects to a database and read SQL results back into memory.
+
+## SQL vs NoSQL
+
+| | SQL (Postgres, MySQL) | NoSQL (MongoDB) |
+|---|---|---|
+| Schema | Strict, enforced | Flexible per document |
+| Joins | First-class | Manual / via aggregation |
+| Transactions | ACID by default | Limited across documents |
+| When to use | Relational data, integrity-critical | Document-shaped, fast schema iteration |
+
+Default to PostgreSQL. Switch only when you have a concrete reason.
+
+## Normalization
+
+Normalize until joins hurt; denormalize where it pays. The classical forms:
+
+- **1NF** — atomic values, no repeating groups
+- **2NF** — every non-key column depends on the whole key
+- **3NF** — no transitive dependencies through non-keys
+
+In practice: separate \`users\`, \`posts\`, \`comments\` into three tables. Don't store an array of post titles on the user row.
+
+## Modelling exercise — a blog
+
+\`\`\`text
+users (id, email, password_hash, created_at)
+posts (id, user_id FK→users, title, body, published, created_at)
+comments (id, post_id FK→posts, user_id FK→users, body, created_at)
+\`\`\`
+
+That schema supports millions of users without re-design.
+
+## Indexes
+
+Indexes are how databases stay fast. Add them on:
+
+- Foreign keys (\`post_id\`, \`user_id\`)
+- Columns you filter on (\`WHERE email = ?\`)
+- Columns you sort by (\`ORDER BY created_at\`)
+
+Don't over-index — every index slows writes.
+
+## Assignment
+
+Design a schema for a Twitter-like product: users, tweets, follows, likes. Justify each foreign key, every index, and whether anything should be denormalized.`;
+
+const m4l2 = `## Lesson Objective
+
+Connect Nest.js to PostgreSQL using either TypeORM or Prisma, define entities, and run migrations safely.
+
+## Why PostgreSQL
+
+The book covers TypeORM, Sequelize, and Mongoose as the three main Node ORMs. TypeORM is one of the most mature, with an official \`@nestjs/typeorm\` package and support for **MySQL, PostgreSQL, MariaDB, SQLite, MS SQL Server, Oracle, and WebSQL**. Postgres is the default modern choice: ACID, JSONB, full-text search, and battle-tested at every scale.
+
+## TypeORM setup
+
+\`\`\`bash
+npm install @nestjs/typeorm typeorm pg
+\`\`\`
+
+\`\`\`ts
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.DATABASE_URL,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/migrations/*.{ts,js}'],
+      synchronize: false,    // NEVER true in production
+    }),
+  ],
+})
+export class AppModule {}
+\`\`\`
+
+## Entity
+
+\`\`\`ts
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn() id: number;
+  @Column({ unique: true })  email: string;
+  @Column()                  passwordHash: string;
+  @CreateDateColumn()        createdAt: Date;
+}
+\`\`\`
+
+## Using it from a service
+
+\`\`\`ts
+@Injectable()
+export class UsersService {
+  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+
+  findByEmail(email: string) { return this.repo.findOne({ where: { email } }); }
+  create(dto: CreateUserDto)  { return this.repo.save(this.repo.create(dto)); }
+}
+\`\`\`
+
+## Prisma alternative
+
+\`\`\`bash
+npm install prisma --save-dev
+npx prisma init
+\`\`\`
+
+\`\`\`prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  posts     Post[]
+  createdAt DateTime @default(now())
+}
+\`\`\`
+
+\`\`\`ts
+@Injectable()
+export class PrismaService extends PrismaClient implements OnModuleInit {
+  async onModuleInit() { await this.$connect(); }
+}
+\`\`\`
+
+## Migrations
+
+\`\`\`bash
+# TypeORM
+typeorm migration:generate src/migrations/AddUsers
+typeorm migration:run
+
+# Prisma
+npx prisma migrate dev --name add_users
+\`\`\`
+
+Never use \`synchronize: true\` in production — it can silently drop columns.
+
+## Assignment
+
+Add a \`User\` and \`Post\` entity with a one-to-many relationship. Write a migration. Seed three users and ten posts. Confirm the schema with \`psql\\dt\`.`;
+
+const m4l3 = `## Lesson Objective
+
+Master relations, transactions, the repository pattern, and query optimization — the differences between a junior and senior ORM user.
+
+## Relations
+
+\`\`\`ts
+@Entity()
+export class Post {
+  @PrimaryGeneratedColumn() id: number;
+  @Column() title: string;
+  @ManyToOne(() => User, (u) => u.posts) author: User;
+  @OneToMany(() => Comment, (c) => c.post) comments: Comment[];
+}
+\`\`\`
+
+## Eager vs lazy loading
+
+Default to **lazy** — load relations only when you need them. Eager loading is convenient and turns into N+1 queries the moment your data grows.
+
+\`\`\`ts
+// Good: explicit join, one query
+this.posts.find({ relations: ['author'], take: 20 });
+\`\`\`
+
+## Transactions
+
+The book uses Sequelize's transaction pattern for the \`User\` service. The same idea in TypeORM:
+
+\`\`\`ts
+await this.dataSource.transaction(async (tx) => {
+  const user = await tx.getRepository(User).save({ email });
+  await tx.getRepository(Wallet).save({ userId: user.id, balance: 0 });
+});
+\`\`\`
+
+If the second insert fails, the first is rolled back automatically.
+
+## Repository pattern
+
+Wrap data access in a domain repository so services depend on the *contract*, not the ORM:
+
+\`\`\`ts
+export abstract class UsersRepo {
+  abstract findByEmail(email: string): Promise<User | null>;
+}
+
+@Injectable()
+export class TypeOrmUsersRepo extends UsersRepo {
+  constructor(@InjectRepository(User) private repo: Repository<User>) { super(); }
+  findByEmail(email: string) { return this.repo.findOne({ where: { email } }); }
+}
+\`\`\`
+
+Now swapping TypeORM for Prisma is one binding change.
+
+## Query optimization
+
+- **Watch N+1**: log SQL in dev, count queries per endpoint
+- **Index** every column in a \`WHERE\` or \`ORDER BY\`
+- **Select only what you need** (\`select: ['id','email']\`)
+- **Paginate** every list endpoint
+- Use \`EXPLAIN ANALYZE\` to see the real query plan
+
+## Assignment
+
+Find one endpoint in your app that runs more than 3 queries. Refactor it to run exactly one query using a proper join. Measure before/after with \`EXPLAIN ANALYZE\`.`;
+
+const m4l4 = `## Lesson Objective
+
+Add Redis caching to your Nest app to reduce database load and shave hundreds of milliseconds off response times.
+
+## What Redis is
+
+An in-memory key-value store. Reads and writes complete in sub-millisecond time. Use it for caches, sessions, rate limits, pub/sub, and queues.
+
+## Setup
+
+\`\`\`bash
+npm install @nestjs/cache-manager cache-manager cache-manager-redis-yet
+\`\`\`
+
+\`\`\`ts
+@Module({
+  imports: [
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        store: await redisStore({ url: process.env.REDIS_URL }),
+        ttl: 60_000,
+      }),
+    }),
+  ],
+})
+export class AppModule {}
+\`\`\`
+
+## Cache an endpoint
+
+\`\`\`ts
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(30_000)
+@Get('popular')
+findPopular() {
+  return this.posts.findPopular(); // expensive query
+}
+\`\`\`
+
+## Manual cache for complex keys
+
+\`\`\`ts
+@Injectable()
+export class PostsService {
+  constructor(@Inject(CACHE_MANAGER) private cache: Cache) {}
+
+  async findById(id: number) {
+    const key = \`post:\${id}\`;
+    const cached = await this.cache.get<Post>(key);
+    if (cached) return cached;
+    const post = await this.repo.findOneBy({ id });
+    if (post) await this.cache.set(key, post, 60_000);
+    return post;
+  }
+
+  async update(id: number, dto: UpdatePostDto) {
+    const updated = await this.repo.save({ id, ...dto });
+    await this.cache.del(\`post:\${id}\`); // invalidate
+    return updated;
+  }
+}
+\`\`\`
+
+## Cache invalidation strategies
+
+- **TTL** — easiest, accept eventual consistency (a few seconds stale)
+- **Write-through** — write to cache and DB on every update
+- **Cache-aside** — delete the cache key on writes (shown above)
+
+The hardest problem in computer science is naming things; the second is cache invalidation. Pick a strategy per resource and document it.
+
+## What to cache
+
+- Read-heavy, slow queries (popular posts, feed pages)
+- Session data
+- Rate-limit counters
+- Anything you can rebuild from the database
+
+## What never to cache
+
+- Per-user sensitive data with the same key
+- Anything that must be strongly consistent (balances, inventory at checkout)
+
+## Assignment
+
+Add Redis caching to your hottest endpoint. Measure p95 latency before/after with a load test.`;
+
+// ===== Module 5: Microservices =====
+
+const m5l1 = `## Lesson Objective
+
+Understand why and when to use microservices, and how Nest's definition differs from the textbook one.
+
+## The Nest definition
+
+The book makes a precise distinction: in Nest, **microservices are applications that use a transport layer other than HTTP** — TCP, Redis pub/sub, and others (any custom one via the \`CustomTransportStrategy\` interface). They allow a team to work on their own service within a global project and make changes without affecting the rest, since the services are loosely coupled. This enables CI/CD independent of other teams.
+
+## Why teams adopt microservices
+
+- **Independent deployment** — ship one service without redeploying everything
+- **Fault isolation** — the payments service going down doesn't take auth down
+- **Polyglot** — use the right language/database per service
+- **Team scaling** — one team owns one service end-to-end
+
+## What you pay for it
+
+- Distributed systems are **hard** — network partitions, retries, idempotency, observability
+- Local function calls become network calls — latency goes up
+- You need a service registry, a deployment pipeline, and tracing
+- Data ownership becomes a real architectural decision
+
+## When NOT to use microservices
+
+- You have one team of fewer than 10 engineers → stay monolithic
+- You don't yet know the service boundaries → splitting too early creates the wrong seams
+- You can't run a load test or trace a request across services → fix observability first
+
+## Service boundary heuristic
+
+Draw boundaries around **data ownership**, not technical layers. A "billing" service that owns the invoices table is a good boundary. An "ORM service" or "validation service" is not.
+
+## Communication patterns
+
+- **Request/response** over TCP or HTTP — simple, synchronous
+- **Pub/sub** over Redis or RabbitMQ — fire-and-forget events
+- **Streams** — Kafka for high-throughput event logs
+
+## Assignment
+
+Take your current monolith. Identify three candidate services with clear data ownership. Write a one-pager: name, responsibilities, data, communication style, failure mode.`;
+
+const m5l2 = `## Lesson Objective
+
+Build your first Nest microservice using TCP transport — producer and consumer in the same repo.
+
+## Generate a microservice
+
+\`\`\`bash
+nest new orders-service
+npm install @nestjs/microservices
+\`\`\`
+
+## Bootstrapping a TCP microservice
+
+\`\`\`ts
+// orders-service/src/main.ts
+async function bootstrap() {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    { transport: Transport.TCP, options: { host: '0.0.0.0', port: 3001 } },
+  );
+  await app.listen();
+}
+bootstrap();
+\`\`\`
+
+## Message-pattern handler
+
+\`\`\`ts
+@Controller()
+export class OrdersController {
+  @MessagePattern({ cmd: 'create-order' })
+  create(@Payload() dto: CreateOrderDto) {
+    return this.orders.create(dto);
+  }
+
+  @MessagePattern({ cmd: 'list-orders' })
+  list(@Payload() userId: number) {
+    return this.orders.listFor(userId);
+  }
+}
+\`\`\`
+
+## Calling it from the HTTP API gateway
+
+\`\`\`ts
+@Module({
+  imports: [
+    ClientsModule.register([{
+      name: 'ORDERS_SERVICE',
+      transport: Transport.TCP,
+      options: { host: 'localhost', port: 3001 },
+    }]),
+  ],
+})
+export class GatewayModule {}
+
+@Controller('orders')
+export class OrdersGateway {
+  constructor(@Inject('ORDERS_SERVICE') private client: ClientProxy) {}
+
+  @Post()
+  create(@Body() dto: CreateOrderDto) {
+    return this.client.send({ cmd: 'create-order' }, dto);
+  }
+}
+\`\`\`
+
+The client returns an Observable; Nest converts it to a Promise/JSON for the HTTP response automatically.
+
+## Hybrid apps
+
+You can run **HTTP and microservice listeners side-by-side** in one process — useful when you're still pulling features out of a monolith:
+
+\`\`\`ts
+const app = await NestFactory.create(AppModule);
+app.connectMicroservice({ transport: Transport.TCP, options: { port: 3001 } });
+await app.startAllMicroservices();
+await app.listen(3000);
+\`\`\`
+
+## Assignment
+
+Split your existing CRUD into two processes: an HTTP gateway and a TCP service. Confirm the gateway can call \`create\`, \`list\`, \`update\`, \`delete\` over TCP.`;
+
+const m5l3 = `## Lesson Objective
+
+Move from synchronous request/response to event-driven architecture using \`@EventPattern\` and pub/sub.
+
+## Events vs commands
+
+- **Command** — "create this order" — caller expects a reply
+- **Event** — "order created" — caller doesn't care who listens
+
+Events are the foundation of decoupling. The orders service emits \`order.created\`. The email service listens and sends a receipt. Analytics listens and records the conversion. Inventory listens and decrements stock. None of them know about each other.
+
+## Emit an event
+
+\`\`\`ts
+@Injectable()
+export class OrdersService {
+  constructor(@Inject('EVENTS') private bus: ClientProxy) {}
+
+  async create(dto: CreateOrderDto) {
+    const order = await this.repo.save(dto);
+    this.bus.emit('order.created', order);
+    return order;
+  }
+}
+\`\`\`
+
+## Subscribe to an event
+
+\`\`\`ts
+@Controller()
+export class EmailListener {
+  @EventPattern('order.created')
+  async handleOrderCreated(@Payload() order: Order) {
+    await this.mailer.sendReceipt(order);
+  }
+}
+\`\`\`
+
+## In-process events with EventEmitter2
+
+For a single-process app, you don't need a broker:
+
+\`\`\`bash
+npm install @nestjs/event-emitter
+\`\`\`
+
+\`\`\`ts
+this.events.emit('order.created', order);
+
+@OnEvent('order.created')
+handle(order: Order) { /* ... */ }
+\`\`\`
+
+## Cross-process events with Redis pub/sub
+
+\`\`\`ts
+ClientsModule.register([{
+  name: 'EVENTS',
+  transport: Transport.REDIS,
+  options: { host: 'redis', port: 6379 },
+}]),
+\`\`\`
+
+## Event sourcing in one paragraph
+
+Instead of storing the *current state* of an order, store the **sequence of events** that produced it: \`order.placed\`, \`payment.captured\`, \`order.shipped\`. The current state is a fold over the event log. Powerful, but complex — don't adopt it until you need full audit history or temporal queries.
+
+## Designing good events
+
+- Past tense: \`order.created\`, not \`create.order\`
+- Include all data subscribers need — they shouldn't have to call back
+- Include a version: \`{ version: 1, ...payload }\`
+- Make handlers **idempotent** — the same event may arrive twice
+
+## Assignment
+
+Refactor your "send welcome email on signup" code into an event. Add a second subscriber that records the signup in an analytics table.`;
+
+const m5l4 = `## Lesson Objective
+
+Build an API Gateway that fronts multiple microservices, centralizes authentication, and aggregates calls.
+
+## What an API Gateway does
+
+- One public URL for clients
+- Authentication and rate limiting happen here, once
+- Request routing to the right service
+- Response aggregation across services
+- Versioning and protocol translation (HTTP → TCP/gRPC/AMQP)
+
+## Topology
+
+\`\`\`text
+Client → Gateway (HTTP, public)
+            ├─ TCP → Auth Service
+            ├─ TCP → Orders Service
+            ├─ TCP → Catalog Service
+            └─ Redis → Notifications Service
+\`\`\`
+
+## Implementation
+
+\`\`\`ts
+@Controller('orders')
+@UseGuards(AuthGuard('jwt'))
+export class OrdersGateway {
+  constructor(
+    @Inject('ORDERS')  private orders:  ClientProxy,
+    @Inject('CATALOG') private catalog: ClientProxy,
+  ) {}
+
+  @Get(':id')
+  async show(@Param('id') id: string) {
+    const order = await firstValueFrom(this.orders.send({ cmd: 'get-order' }, +id));
+    const items = await firstValueFrom(
+      this.catalog.send({ cmd: 'get-products' }, order.itemIds),
+    );
+    return { ...order, items };
+  }
+}
+\`\`\`
+
+## Aggregation in parallel
+
+Use \`Promise.all\` / \`forkJoin\` so two downstream calls don't serialize:
+
+\`\`\`ts
+const [order, items] = await Promise.all([
+  firstValueFrom(this.orders.send({ cmd: 'get-order' }, +id)),
+  firstValueFrom(this.catalog.send({ cmd: 'get-products' }, ids)),
+]);
+\`\`\`
+
+## Cross-cutting concerns
+
+Put these on the gateway, not in every service:
+
+- JWT verification + user context propagation (\`x-user-id\` header)
+- Rate limiting with \`@nestjs/throttler\`
+- Request logging with a correlation id
+- CORS, Helmet, response compression
+- API versioning (\`/v1\`, \`/v2\`)
+
+## What not to do
+
+- Don't put business logic in the gateway — keep it dumb
+- Don't make the gateway a single point of failure — run multiple replicas
+- Don't aggregate everything — sometimes the client should call two endpoints
+
+## Assignment
+
+Add a gateway in front of two of your microservices. Implement a single aggregated \`GET /me/dashboard\` endpoint that fans out to user + orders + notifications and merges the result.`;
+
+const m5l5 = `## Lesson Objective
+
+Use RabbitMQ for durable, retryable message delivery between services — with dead-letter queues for poison messages.
+
+## Why RabbitMQ over Redis pub/sub
+
+Redis pub/sub is fire-and-forget — if no consumer is online, the message is lost. RabbitMQ stores messages, retries failed deliveries, supports priorities, dead-letters, and acknowledgements.
+
+## Setup
+
+\`\`\`bash
+npm install @nestjs/microservices amqplib amqp-connection-manager
+\`\`\`
+
+\`\`\`ts
+// consumer (orders service)
+const app = await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  transport: Transport.RMQ,
+  options: {
+    urls: [process.env.RABBITMQ_URL],
+    queue: 'orders_queue',
+    queueOptions: { durable: true },
+    noAck: false,
   },
-  {
-    id: "database",
-    title: "Scalable Database Systems",
-    tagline: "Design and manage scalable backend databases professionally.",
-    icon: "Database",
-    video: {
-      title: "NestJS + TypeORM + PostgreSQL — Full Tutorial",
-      channel: "freeCodeCamp",
-      query: "NestJS TypeORM PostgreSQL tutorial",
-    },
-    overview: `## From the book — Chapter 5: ORM & TypeORM
+});
+\`\`\`
 
-An **ORM** (Object-Relational Mapping) provides a mapping between objects in memory — defined classes such as \`User\` or \`Comment\` — and relational tables in a database. This lets you create a Data Transfer Object that knows how to write objects stored in memory to a database, and read SQL query results back into memory.
+## Producer
 
-This course covers three ORMs — two relational and one for NoSQL:
+\`\`\`ts
+ClientsModule.register([{
+  name: 'ORDERS',
+  transport: Transport.RMQ,
+  options: { urls: [url], queue: 'orders_queue', queueOptions: { durable: true } },
+}]),
 
-- **TypeORM** — one of the most mature and popular ORMs for Node.js, with a deep feature set and an official Nest package \`@nestjs/typeorm\`. It supports MySQL, PostgreSQL, MariaDB, SQLite, MS SQL Server, Oracle, and WebSQL.
-- **Sequelize** — *the* most popular ORM in the Node.js world. Written in plain JavaScript with TypeScript bindings via \`sequelize-typescript\` and \`@types/sequelize\`. Strong transaction support, relations, and read replication.
-- **Mongoose** — handles object relations between **MongoDB** and JavaScript. The mapping is much closer than with relational databases because MongoDB stores its data in JSON. There is also an official \`@nestjs/mongoose\` package with query chaining.
+this.orders.emit('order.created', payload);
+\`\`\`
 
-## What you'll build in this module
+## Manual acknowledgement
 
-- Designing relational data and modelling entities
-- Auto-generated IDs, timestamps, and column types per database
-- Relationships between models and how to store related entities
-- Caching with Redis to make those queries fly`,
-    lessons: [
-      { id: "fundamentals", title: "Database Fundamentals for Backend Engineers", duration: "20 min", content: outline("Database Fundamentals", ["SQL vs NoSQL","Relational modeling","Normalization","Database architecture"], ["20-minute conceptual lesson","Architecture diagrams","Quiz"]) },
-      { id: "postgres", title: "Using PostgreSQL with Nest.js", duration: "45 min", content: outline("PostgreSQL with Nest.js", ["Database setup","ORM integration (TypeORM/Prisma)","Entities and schemas","Migrations"], ["45-minute coding workshop","Starter templates","Exercises"]) },
-      { id: "orm-patterns", title: "Advanced ORM Patterns", duration: "35 min", content: outline("Advanced ORM Patterns", ["Relations and joins","Transactions","Repository pattern","Query optimization"], ["35-minute implementation session","Practice tasks","Assignment"]) },
-      { id: "redis-cache", title: "Caching with Redis", duration: "25 min", content: outline("Caching with Redis", ["Redis fundamentals","Cache strategies","Performance optimization","Cache invalidation"], ["25-minute implementation tutorial","Redis configuration guide","Mini project"]) },
+\`\`\`ts
+@EventPattern('order.created')
+async handle(@Payload() data: Order, @Ctx() ctx: RmqContext) {
+  const channel = ctx.getChannelRef();
+  const original = ctx.getMessage();
+  try {
+    await this.process(data);
+    channel.ack(original);
+  } catch (err) {
+    channel.nack(original, false, false); // → DLQ
+  }
+}
+\`\`\`
+
+\`noAck: false\` + explicit \`ack\` means: if your service crashes mid-processing, RabbitMQ re-delivers to another consumer.
+
+## Retry and dead-letter queues
+
+Configure the queue with a DLX (dead-letter exchange) and a retry-with-delay queue:
+
+\`\`\`text
+orders_queue (TTL=30s, DLX → orders_retry)
+orders_retry (TTL=30s, DLX → orders_queue)   ← bounce back, exponential backoff
+orders_dlq    ← after N retries, parked here for inspection
+\`\`\`
+
+## Idempotency
+
+Every handler should be safe to run twice for the same message — store a \`processed_events(event_id)\` table and skip if seen.
+
+## When to use what
+
+- **In-process event emitter** — same Nest app
+- **Redis pub/sub** — low-latency notifications, OK to lose
+- **RabbitMQ** — must-deliver work, retries, fan-out
+- **Kafka** — high-throughput logs, replayable history
+
+## Assignment
+
+Move "send welcome email" to a RabbitMQ-backed queue with a DLQ. Crash the consumer mid-job — confirm the message is redelivered and not lost.`;
+
+// ===== Module 6: Performance with Queues & Caching =====
+
+const m6l1 = `## Lesson Objective
+
+Offload slow work to background jobs with BullMQ — keeping your HTTP API fast and your users happy.
+
+## When you need a queue
+
+If a request takes longer than ~200ms because of work that doesn't have to finish *before* responding (sending email, generating a PDF, processing an image, calling a slow third-party API), it belongs in a queue.
+
+## Setup
+
+\`\`\`bash
+npm install @nestjs/bullmq bullmq
+\`\`\`
+
+\`\`\`ts
+@Module({
+  imports: [
+    BullModule.forRoot({ connection: { host: 'redis', port: 6379 } }),
+    BullModule.registerQueue({ name: 'emails' }),
+  ],
+})
+export class JobsModule {}
+\`\`\`
+
+## Producer
+
+\`\`\`ts
+@Injectable()
+export class SignupService {
+  constructor(@InjectQueue('emails') private emails: Queue) {}
+
+  async signup(dto: SignupDto) {
+    const user = await this.users.create(dto);
+    await this.emails.add('welcome', { userId: user.id }, {
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 5000 },
+      removeOnComplete: 1000,
+      removeOnFail: false,
+    });
+    return user;
+  }
+}
+\`\`\`
+
+## Worker
+
+\`\`\`ts
+@Processor('emails')
+export class EmailsProcessor extends WorkerHost {
+  async process(job: Job) {
+    if (job.name === 'welcome') {
+      await this.mailer.sendWelcome(job.data.userId);
+    }
+  }
+}
+\`\`\`
+
+Workers can run in the same process or — better — as their own deployable (\`npm run start:worker\`) so you can scale them independently.
+
+## Delayed and recurring jobs
+
+\`\`\`ts
+// 1 hour from now
+queue.add('reminder', { id }, { delay: 3_600_000 });
+
+// every weekday at 9am
+queue.add('digest', {}, { repeat: { pattern: '0 9 * * 1-5' } });
+\`\`\`
+
+## Job priorities
+
+\`\`\`ts
+queue.add('password-reset', payload, { priority: 1 });   // urgent
+queue.add('analytics-sync', payload, { priority: 10 });  // background
+\`\`\`
+
+## Observability
+
+Add \`bull-board\` for a live UI showing waiting / active / completed / failed jobs.
+
+## Assignment
+
+Convert three slow endpoints to background jobs. Add a worker process. Confirm p95 latency on those endpoints drops below 100ms.`;
+
+const m6l2 = `## Lesson Objective
+
+Build a robust notification system — email, SMS, push — that survives provider outages and retries automatically.
+
+## Architecture
+
+\`\`\`text
+App → emit 'notify.send' → notifications queue → workers → SendGrid / Twilio / FCM
+                                                       ↓ on failure
+                                                  retry with backoff → DLQ
+\`\`\`
+
+The application **never** calls SendGrid directly — it only emits an event. If SendGrid is down for 10 minutes, the queue buffers; nothing is lost.
+
+## A unified notifier
+
+\`\`\`ts
+export type Notification =
+  | { channel: 'email'; to: string; template: string; data: any }
+  | { channel: 'sms';   to: string; template: string; data: any }
+  | { channel: 'push';  userId: number; template: string; data: any };
+
+@Injectable()
+export class NotificationsService {
+  constructor(@InjectQueue('notifications') private q: Queue) {}
+  send(n: Notification) {
+    return this.q.add('send', n, { attempts: 5, backoff: { type: 'exponential', delay: 10_000 } });
+  }
+}
+\`\`\`
+
+## Provider abstraction
+
+\`\`\`ts
+export abstract class EmailProvider {
+  abstract send(to: string, subject: string, html: string): Promise<void>;
+}
+
+@Injectable()
+export class SendGridProvider extends EmailProvider { /* ... */ }
+@Injectable()
+export class PostmarkProvider extends EmailProvider { /* ... */ }
+\`\`\`
+
+If SendGrid raises prices or fails, swap the binding — your business code doesn't change.
+
+## Templating
+
+Use Handlebars or MJML for HTML emails. Store templates in your repo (\`templates/welcome.hbs\`), render with the recipient's data inside the worker.
+
+## User preferences
+
+Every user should be able to opt out by channel and category (transactional vs marketing). Check \`notification_preferences\` before sending — and never send marketing to users who didn't opt in.
+
+## Tracking
+
+Log: queued, sent, delivered, opened, bounced. SendGrid/Postmark webhooks push these events back — store them so you can answer "did the user receive the password reset?"
+
+## Assignment
+
+Build a notification system with email + SMS providers, opt-out preferences, and a webhook endpoint that records delivery status.`;
+
+const m6l3 = `## Lesson Objective
+
+Use Redis beyond simple caching — distributed locks, rate limiting, session storage, and pub/sub at scale.
+
+## Distributed rate limiting
+
+\`@nestjs/throttler\` defaults to memory storage. Across multiple Node processes that breaks — each instance has its own counter. Use a Redis storage adapter so the limit is global:
+
+\`\`\`ts
+ThrottlerModule.forRootAsync({
+  useFactory: () => ({
+    throttlers: [{ ttl: 60_000, limit: 100 }],
+    storage: new ThrottlerStorageRedisService(redisClient),
+  }),
+}),
+\`\`\`
+
+## Session storage
+
+Don't store sessions in memory or in JWTs you can't revoke. Store them in Redis with a TTL:
+
+\`\`\`ts
+await redis.set(\`session:\${id}\`, JSON.stringify(data), 'EX', 3600);
+\`\`\`
+
+Logout = \`redis.del('session:' + id)\`. Force-logout-all-users = \`redis.flushdb()\` on the sessions DB.
+
+## Distributed locks (Redlock)
+
+When two workers might process the same job, wrap the critical section in a lock:
+
+\`\`\`ts
+import Redlock from 'redlock';
+const redlock = new Redlock([redis]);
+
+const lock = await redlock.acquire(['lock:invoice:42'], 5000);
+try { /* exclusive section */ } finally { await lock.release(); }
+\`\`\`
+
+## Idempotency keys
+
+Clients send \`Idempotency-Key: <uuid>\`. Server stores the result in Redis for 24h. Duplicate requests return the cached response — safe retries for POST.
+
+## Pub/sub at scale
+
+For ephemeral fan-out (live dashboards, chat presence), Redis pub/sub is perfect: sub-millisecond delivery, zero persistence. Pair with WebSockets:
+
+\`\`\`ts
+redisSub.subscribe('prices');
+redisSub.on('message', (_ch, msg) => this.io.emit('price', JSON.parse(msg)));
+\`\`\`
+
+## Sorted sets for leaderboards
+
+\`\`\`ts
+await redis.zadd('leaderboard', score, userId);
+await redis.zrevrange('leaderboard', 0, 9, 'WITHSCORES'); // top 10
+\`\`\`
+
+A million users, sub-millisecond top-N.
+
+## Memory and eviction
+
+Set \`maxmemory\` + \`maxmemory-policy allkeys-lru\` in production. Monitor hit ratio — anything under 80% on a hot cache means your TTLs are wrong.
+
+## Assignment
+
+Add distributed rate limiting, idempotency keys on \`POST /payments\`, and a Redis-backed leaderboard endpoint. Run a 2-instance deployment and verify limits are enforced globally.`;
+
+const m6l4 = `## Lesson Objective
+
+Profile, identify, and fix the real bottlenecks in a Nest.js application — database, CPU, or network.
+
+## Measure first
+
+You cannot optimize what you do not measure. Three signals matter:
+
+1. **p95 / p99 latency** per endpoint
+2. **Database query count** per request
+3. **CPU and memory** per process
+
+Tools: \`autocannon\` for load tests, \`clinic.js\` for Node profiling, \`pg_stat_statements\` for slow queries, Datadog/Grafana for production.
+
+## The 80/20 of Nest performance
+
+In nearly every Nest app, the bottleneck is the **database**, not Node. Optimize in this order:
+
+1. **Add the missing index** — one index can be 100× faster than any code change
+2. **Fix N+1 queries** — one join replaces 50 queries
+3. **Paginate** — never return unbounded lists
+4. **Cache** the slow read-mostly queries in Redis
+5. **Offload** slow work to background jobs
+6. *Then* think about Node performance
+
+## EXPLAIN ANALYZE
+
+\`\`\`sql
+EXPLAIN ANALYZE
+SELECT * FROM posts WHERE user_id = 42 ORDER BY created_at DESC LIMIT 20;
+\`\`\`
+
+If you see "Seq Scan" on a million-row table, you need an index on \`(user_id, created_at)\`.
+
+## Connection pooling
+
+Postgres defaults to ~100 connections. Each Node instance with TypeORM should use a pool of ~10. Beyond that, put PgBouncer in front — running out of DB connections is the single most common production outage in Node shops.
+
+## Node-side optimizations
+
+- Run multiple processes with PM2 / cluster mode (or, better, run multiple Docker replicas)
+- Use \`--max-old-space-size\` to set heap limits
+- Stream large responses with \`StreamableFile\` instead of loading into memory
+- Avoid sync I/O (\`readFileSync\`) in request handlers
+
+## A performance budget
+
+Write down your targets:
+
+- p95 < 200ms on all GET endpoints
+- < 5 SQL queries per request
+- < 250MB heap per process
+
+Treat regressions like bugs. Run load tests in CI.
+
+## Assignment
+
+Profile your slowest endpoint. Find the dominant cost (DB, CPU, network). Fix it. Document before/after p95 with screenshots from the load test.`;
+
+// ===== Module 7: Testing =====
+
+const m7l1 = `## Lesson Objective
+
+Understand why automated tests exist, the testing pyramid, and how Nest.js makes each layer easy.
+
+## Why we test — straight from the book
+
+> Testing your Nest server will be imperative so that once it is deployed there are no unforeseen issues and it all runs smoothly.
+
+The book teaches two kinds of tests:
+
+- **Unit tests** — testing small blocks of code: an individual function, a controller, an interceptor, any injectable. Nest provides the \`@nestjs/testing\` package specifically for this, with files named \`*.spec.ts\` and \`*.test.ts\`.
+- **E2E tests** — testing entire functionality rather than individual pieces, end to end. Nest applications use Jest plus the \`supertest\` library to simulate HTTP requests.
+
+## The testing pyramid
+
+\`\`\`text
+         /\\
+        /E2E\\          few, slow, high confidence
+       /------\\
+      / Integ. \\       some, medium speed
+     /----------\\
+    /   Unit     \\     many, fast, low confidence per test
+   /--------------\\
+\`\`\`
+
+A healthy Nest app might have **70% unit, 25% integration, 5% E2E**. Unit tests run in milliseconds — you should run them on every save.
+
+## Test-driven development
+
+Red → Green → Refactor:
+
+1. Write a failing test for the behaviour you want
+2. Write the minimum code to make it pass
+3. Refactor freely — the test catches regressions
+
+TDD isn't always right (exploratory UI work, prototypes), but for service logic it produces cleaner designs.
+
+## What to test
+
+- **Always**: business rules, edge cases, security boundaries, money-handling code
+- **Often**: controllers (status codes, validation), services (logic)
+- **Sometimes**: simple CRUD that's already covered by the framework
+- **Rarely**: library code you don't own, getters/setters
+
+## What good tests look like
+
+- One assertion per behaviour (multiple expects OK if they describe the same behaviour)
+- Names describe the *behaviour*, not the function: \`it('rejects login with wrong password')\`
+- AAA: Arrange, Act, Assert
+- Independent — order should not matter
+- Deterministic — no \`Math.random()\`, no real network
+
+## Assignment
+
+For your existing app, list every behaviour worth testing. Categorize each as unit / integration / E2E and target ratios for the pyramid.`;
+
+const m7l2 = `## Lesson Objective
+
+Write unit tests for Nest providers using \`@nestjs/testing\`, mock dependencies cleanly, and run them in under a second.
+
+## The testing module
+
+\`\`\`ts
+describe('UsersService', () => {
+  let service: UsersService;
+  let repo: jest.Mocked<Repository<User>>;
+
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [
+        UsersService,
+        { provide: getRepositoryToken(User), useValue: createMock<Repository<User>>() },
+      ],
+    }).compile();
+
+    service = module.get(UsersService);
+    repo = module.get(getRepositoryToken(User));
+  });
+
+  it('finds a user by email', async () => {
+    repo.findOne.mockResolvedValue({ id: 1, email: 'a@b.c' } as User);
+
+    const user = await service.findByEmail('a@b.c');
+
+    expect(user).toMatchObject({ id: 1 });
+    expect(repo.findOne).toHaveBeenCalledWith({ where: { email: 'a@b.c' } });
+  });
+
+  it('returns null when missing', async () => {
+    repo.findOne.mockResolvedValue(null);
+    await expect(service.findByEmail('x@y.z')).resolves.toBeNull();
+  });
+});
+\`\`\`
+
+## Mocking strategies
+
+- **\`useValue\`** — a fixed object
+- **\`useFactory\`** — built per test
+- **\`createMock\` from @golevelup/ts-jest** — deep mock with type safety
+- **\`jest.spyOn\`** — for methods you don't want to fully mock
+
+## Testing controllers
+
+\`\`\`ts
+it('GET /users returns list', async () => {
+  const usersSvc = { findAll: jest.fn().mockResolvedValue([{ id: 1 }]) };
+  const module = await Test.createTestingModule({
+    controllers: [UsersController],
+    providers: [{ provide: UsersService, useValue: usersSvc }],
+  }).compile();
+
+  const ctrl = module.get(UsersController);
+  expect(await ctrl.findAll()).toEqual([{ id: 1 }]);
+});
+\`\`\`
+
+## Tips that save hours
+
+- Run with \`--watch\` while you code
+- Use \`--coverage\` only in CI — slow on every save
+- \`jest.resetAllMocks()\` in \`afterEach\` — stale mocks cause confusing failures
+- Don't test \`Logger\`, don't test \`bcrypt\` — test *your* code
+
+## Assignment
+
+Write unit tests for your auth service: \`validateUser\` happy path, wrong password, missing user. Add tests for token signing with a frozen clock (\`jest.useFakeTimers()\`).`;
+
+const m7l3 = `## Lesson Objective
+
+Write integration tests that spin up real Nest modules talking to a real database — catching bugs unit tests miss.
+
+## Unit vs integration
+
+A unit test mocks the repository. An integration test uses a **real database** (often Postgres in Docker) so you also test the SQL, the migrations, and the mapping layer.
+
+## Test database setup
+
+\`\`\`ts
+let app: INestApplication;
+let dataSource: DataSource;
+
+beforeAll(async () => {
+  const module = await Test.createTestingModule({
+    imports: [
+      TypeOrmModule.forRoot({
+        type: 'postgres',
+        url: process.env.TEST_DATABASE_URL,
+        entities: [User, Post],
+        synchronize: true,
+        dropSchema: true,
+      }),
+      UsersModule,
     ],
-  },
-  {
-    id: "microservices",
-    title: "Microservices Architecture",
-    tagline: "Build distributed systems professionally with Nest.js.",
-    icon: "Network",
-    video: {
-      title: "NestJS Microservices — TCP, Redis & RabbitMQ",
-      channel: "Marius Espejo",
-      query: "NestJS microservices tutorial TCP Redis RabbitMQ",
-    },
-    overview: `## From the book — Microservices in Nest
+  }).compile();
 
-**Microservices** allow a Nest application to be structured as a collection of **loosely coupled** services. In Nest, microservices are slightly different from the typical definition because they are an application that uses a **different transport layer** other than HTTP. This layer can be **TCP**, **Redis pub/sub**, or others. Nest supports TCP and Redis out of the box, and any other transport can be implemented through the \`CustomTransportStrategy\` interface.
+  app = module.createNestApplication();
+  await app.init();
+  dataSource = module.get(DataSource);
+});
 
-Microservices are powerful because they allow a team to work on their own service within the global project and make changes **without affecting the rest of the project**, since the services are loosely coupled. This enables **continuous delivery and continuous integration** independent of other teams' microservices.
+afterAll(async () => {
+  await app.close();
+});
 
-## WebSockets — the real-time cousin
+afterEach(async () => {
+  await dataSource.synchronize(true); // truncate between tests
+});
+\`\`\`
 
-WebSockets are another way to connect to and send/receive data from a server. With WebSockets, a client connects to the server and **subscribes to channels**. Clients push data to a channel, the server receives it, and broadcasts it to every subscribed client. Most chat apps use WebSockets to allow for real-time communication: everyone in a group message receives the message as soon as one member sends one.
+## Run Postgres in Docker, just for tests
 
-## In this module you will build
+\`\`\`yaml
+# docker-compose.test.yml
+services:
+  pg-test:
+    image: postgres:16
+    environment: { POSTGRES_PASSWORD: test }
+    ports: ['5433:5432']
+\`\`\`
 
-- Your first Nest microservice using TCP transport
-- Event-driven architecture with pub/sub patterns
-- An API Gateway in front of multiple services
-- RabbitMQ-backed message queues with retries and DLQs`,
-    lessons: [
-      { id: "intro", title: "Introduction to Microservices", duration: "25 min", content: outline("Introduction to Microservices", ["Why microservices","Service boundaries","Communication patterns","Trade-offs"], ["25-minute theory lesson","Architecture diagrams","Quiz"]) },
-      { id: "first-service", title: "Building Your First Nest.js Microservice", duration: "50 min", content: outline("First Microservice", ["TCP transport","Message patterns","Service communication","Hybrid apps"], ["50-minute coding workshop","Starter repo","Practice lab"]) },
-      { id: "event-driven", title: "Event-Driven Architecture", duration: "35 min", content: outline("Event-Driven Architecture", ["Pub/Sub systems","Event emitters","Asynchronous communication","Event sourcing basics"], ["35-minute implementation lesson","Event architecture templates","Assignment"]) },
-      { id: "api-gateway", title: "API Gateway Pattern", duration: "40 min", content: outline("API Gateway Pattern", ["Gateway architecture","Centralized authentication","Request routing","Aggregation"], ["40-minute coding session","Gateway template","System design exercise"]) },
-      { id: "rabbitmq", title: "RabbitMQ & Message Queues", duration: "45 min", content: outline("RabbitMQ & Queues", ["Queue systems","Producers and consumers","Retry strategies","Dead-letter queues"], ["45-minute practical implementation","Queue configuration templates","Lab exercise"]) },
-    ],
-  },
-  {
-    id: "performance",
-    title: "Performance with Queues & Caching",
-    tagline: "Build highly scalable systems for real-world traffic.",
-    icon: "Zap",
-    video: {
-      title: "BullMQ Background Jobs & Redis Caching with NestJS",
-      channel: "Marius Espejo",
-      query: "NestJS BullMQ Redis background jobs caching tutorial",
-    },
-    overview: `## Performance — the CQRS mindset
+\`\`\`bash
+docker compose -f docker-compose.test.yml up -d
+TEST_DATABASE_URL=postgres://postgres:test@localhost:5433/postgres npm run test
+\`\`\`
 
-The book introduces **Command Query Responsibility Segregation (CQRS)**: the idea that each method should either be one that **performs an action (command)** or one that **requests data (query)** — but not both.
+## Test data seeding
 
-In practice this means you should not have database access code directly in a controller endpoint. Instead, create a component — a Database Service — with a method such as \`getAllUsers()\` that returns all users for the controller's service to call. This **separates the question from the answer** into different components.
+Use factory functions, not fixtures:
 
-That mindset is exactly what unlocks the performance work in this module:
+\`\`\`ts
+const userFactory = (overrides?: Partial<User>) =>
+  repo.save({ email: \`u\${Date.now()}@x.io\`, passwordHash: 'x', ...overrides });
+\`\`\`
 
-- **Background jobs with BullMQ** — push slow work (emails, image processing, reports) off the request path
-- **Notifications & mail queues** — durable, retryable delivery instead of blocking HTTP calls
-- **Advanced Redis** — distributed caching, session storage, rate limiting, pub/sub
-- **Performance optimization** — profiling, database indexing, query optimization, bottleneck analysis
+Factories make each test independent — no shared fixture file to keep in sync.
 
-By the end of this module, your API should be able to absorb real traffic without melting.`,
-    lessons: [
-      { id: "bullmq", title: "Background Jobs with BullMQ", duration: "35 min", content: outline("BullMQ", ["Queue workers","Delayed jobs","Retry strategies","Job priorities"], ["35-minute coding lesson","Queue templates","Practical assignment"]) },
-      { id: "notifications", title: "Email & Notification Systems", duration: "25 min", content: outline("Notification Systems", ["Mail queues","SMS workflows","Notification architecture","Templating"], ["25-minute implementation tutorial","Notification templates","Exercise"]) },
-      { id: "redis-advanced", title: "Advanced Redis Strategies", duration: "30 min", content: outline("Advanced Redis", ["Distributed caching","Session storage","Rate limiting with Redis","Pub/Sub"], ["30-minute coding workshop","Scaling checklist","Quiz"]) },
-      { id: "optimization", title: "Performance Optimization", duration: "40 min", content: outline("Performance Optimization", ["Profiling","Database indexing","Query optimization","Bottleneck analysis"], ["40-minute optimization workshop","Performance checklist","Debugging lab"]) },
-    ],
-  },
-  {
-    id: "testing",
-    title: "Automated Testing for Confidence",
-    tagline: "Unit, integration, and E2E testing — ship without fear.",
-    icon: "FlaskConical",
-    video: {
-      title: "NestJS Testing — Unit, Integration, and E2E with Jest",
-      channel: "Marius Espejo",
-      query: "NestJS testing tutorial jest supertest unit e2e",
-    },
-    overview: `## From the book — Testing in Nest
+## What to actually test at this layer
 
-Testing your Nest server is **imperative** so that once it is deployed there are no unforeseen issues and it runs smoothly. There are two kinds of tests you will learn here:
+- Repository methods do the right SQL
+- Migrations run cleanly forward and backward
+- Unique constraints reject duplicates
+- Transactions roll back on errors
+- ORM mapping handles nullable / default / enum columns
 
-### Unit Tests
+## Assignment
 
-The art of testing **small snippets or blocks of code** — as granular as testing individual functions, controllers, interceptors, or any other injectable. Two popular frameworks are **Jasmine** and **Jest**. Nest provides the dedicated \`@nestjs/testing\` package for writing unit tests in \`*.spec.ts\` and \`*.test.ts\` files.
+Add integration tests for your users module that prove: signup creates a row, duplicate email returns 409, soft-delete preserves the row but excludes from \`findAll\`.`;
 
-### End-to-End (E2E) Tests
+const m7l4 = `## Lesson Objective
 
-E2E testing differs from unit testing in that it tests **entire functionality** rather than individual functions or components — hence the name "end-to-end". Eventually applications become so large it is hard to test absolutely every piece of code, so E2E tests verify the application from beginning to end.
+Write end-to-end tests with Supertest that drive your real HTTP API — auth, validation, error paths, the lot.
 
-For E2E testing a Nest application, you can use **Jest** to mock components and **Supertest** to simulate HTTP requests.
+## The book's recommendation
 
-## Why this matters
+Nest's E2E story uses **Jest** plus **\`supertest\`** to simulate HTTP requests against the running app. The \`@nestjs/testing\` package wires this up cleanly.
 
-Testing is a very important part of writing applications and should not be ignored. It is relevant no matter what language or framework you end up working with. Most large-scale development companies have **entire teams dedicated to writing tests** for code that ships to production — these engineers are called QA developers. This module also wires testing into a CI/CD pipeline so every push is automatically validated.`,
-    lessons: [
-      { id: "fundamentals", title: "Testing Fundamentals", duration: "20 min", content: outline("Testing Fundamentals", ["Why testing matters","Unit vs integration vs E2E","Testing pyramid","Test-driven development"], ["20-minute conceptual lesson","Testing cheat sheet","Quiz"]) },
-      { id: "unit", title: "Unit Testing with Jest", duration: "40 min", content: outline("Unit Testing", ["Jest fundamentals","Mocking dependencies","Testing services","DI in tests"], ["40-minute coding workshop","Reusable test templates","Exercises"]) },
-      { id: "integration", title: "Integration Testing", duration: "35 min", content: outline("Integration Testing", ["Database testing","API testing","Test environments","Test data seeding"], ["35-minute implementation lesson","Integration test starter repo","Lab exercise"]) },
-      { id: "e2e", title: "End-to-End Testing with Supertest", duration: "45 min", content: outline("E2E Testing", ["Full API testing","Supertest","Real-world workflows","Authenticated flows"], ["45-minute coding session","E2E testing checklist","Assignment"]) },
-      { id: "cicd", title: "CI/CD Testing Pipelines", duration: "30 min", content: outline("CI/CD Pipelines", ["GitHub Actions","Automated testing","Deployment validation","Coverage gates"], ["30-minute DevOps lesson","CI workflow templates","Practical challenge"]) },
-    ],
-  },
-  {
-    id: "docker",
-    title: "Docker, DevOps & Production Deployment",
-    tagline: "Containerize, orchestrate, and deploy professional systems.",
-    icon: "Container",
-    video: {
-      title: "Dockerize a NestJS App + Postgres with Docker Compose",
-      channel: "Marius Espejo",
-      query: "NestJS Docker docker-compose postgres production deployment",
-    },
-    overview: `## Docker, DevOps & Production Deployment
+## Anatomy of an E2E test
 
-The book ships with a Docker-based workflow from day one: \`docker pull nestjs/cli:[version]\` to generate projects, and reproducible environments for every developer on the team. This module turns that into a full production story.
+\`\`\`ts
+import * as request from 'supertest';
 
-## What you'll containerize
+describe('Auth (e2e)', () => {
+  let app: INestApplication;
 
-- **Multi-stage Dockerfiles** — small, fast, production-ready images for your Nest app
-- **Docker Compose** — orchestrate PostgreSQL, Redis, and your API as one stack
-- **Environment & secrets** — secure \`.env\` management, config modules, and secret rotation
-- **Production deployment** — VPS, Render / Railway, Nginx reverse proxy, monitoring
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleRef.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    await app.init();
+  });
 
-## The mental model
+  afterAll(() => app.close());
 
-A backend engineer who only knows how to run \`npm start\` cannot ship enterprise systems. A backend engineer who can build, tag, and deploy a container — and orchestrate it with its database and cache — can ship anywhere. By the end of this module your Nest project will start with a single \`docker compose up\` and deploy to production with a single command.`,
-    lessons: [
-      { id: "fundamentals", title: "Docker Fundamentals", duration: "25 min", content: outline("Docker Fundamentals", ["Containers explained","Docker architecture","Images vs containers","Layers and caching"], ["25-minute conceptual lesson","Docker cheat sheet","Quiz"]) },
-      { id: "dockerize", title: "Dockerizing Nest.js Applications", duration: "45 min", content: outline("Dockerizing Nest.js", ["Dockerfiles","Multi-stage builds","Production optimization","Image size reduction"], ["45-minute implementation workshop","Production Docker templates","Assignment"]) },
-      { id: "compose", title: "Docker Compose for Fullstack Systems", duration: "35 min", content: outline("Docker Compose", ["PostgreSQL containers","Redis containers","Multi-service orchestration","Networks and volumes"], ["35-minute coding lesson","docker-compose templates","Practical lab"]) },
-      { id: "secrets", title: "Environment Variables & Secrets Management", duration: "20 min", content: outline("Secrets Management", [".env management","Secure deployments","Config modules","Secret rotation"], ["20-minute implementation lesson","Security checklist","Quiz"]) },
-      { id: "deploy", title: "Deploying to Production", duration: "50 min", content: outline("Production Deployment", ["VPS deployment","Render / Railway deployment","Monitoring","Nginx reverse proxy"], ["50-minute deployment workshop","Deployment scripts","Production checklist"]) },
-    ],
-  },
-  {
-    id: "capstone",
-    title: "Capstone: Enterprise Backend Platform",
-    tagline: "Apply everything — build a real-world production system.",
-    icon: "Trophy",
-    video: {
-      title: "Build & Deploy a Full NestJS Microservices Platform",
-      channel: "Marius Espejo",
-      query: "NestJS full project microservices docker production",
-    },
-    overview: `## Capstone — apply everything
+  it('signs up and logs in', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/signup')
+      .send({ email: 'a@b.c', password: 'CorrectHorseBatteryStaple' })
+      .expect(201);
 
-In the capstone you'll combine every chapter of the book into one production-grade platform: Nest core architecture, REST APIs, authentication with Passport + JWT, an ORM-backed database layer, microservices with their own transport, queues and caching for performance, automated tests, and a Docker-based deployment.
+    const res = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'a@b.c', password: 'CorrectHorseBatteryStaple' })
+      .expect(200);
 
-## Deliverables
+    expect(res.body.access_token).toBeDefined();
+  });
 
-1. **Architecture document** — service boundaries, data ownership, API contracts
-2. **Core services** — authentication, users, notifications, plus shared libraries
-3. **Microservice integration** — gateway, event bus, resilience patterns
-4. **Test coverage + CI/CD** — automated unit, integration, and E2E checks
-5. **Production deployment** — containerized, monitored, and documented
+  it('rejects wrong password', () =>
+    request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'a@b.c', password: 'wrong' })
+      .expect(401));
+});
+\`\`\`
 
-This is the project you put at the top of your portfolio.`,
-    lessons: [
-      { id: "planning", title: "Project Architecture Planning", duration: "Workshop", content: outline("Architecture Planning", ["System design","Service boundaries","Database planning","API contracts"], ["Architecture workshop","Planning templates","System diagrams"]) },
-      { id: "core-services", title: "Building Core Services", duration: "Workshop", content: outline("Core Services", ["Authentication service","User service","Notification service","Shared libraries"], ["Guided implementation videos","Source code walkthroughs","Coding labs"]) },
-      { id: "integration", title: "Integrating Microservices", duration: "Workshop", content: outline("Microservice Integration", ["Service communication","API gateway","Event architecture","Resilience patterns"], ["Full implementation workshop","Debugging walkthrough","Assignment"]) },
-      { id: "deploy", title: "Testing & Production Deployment", duration: "Workshop", content: outline("Final Deployment", ["Full test coverage","Docker deployment","CI/CD integration","Monitoring setup"], ["Production deployment workshop","Deployment checklist","Final review"]) },
-    ],
-  },
-];
+## Authenticated flows
+
+\`\`\`ts
+const { body } = await request(server).post('/auth/login').send(creds);
+const token = body.access_token;
+
+await request(server)
+  .get('/me')
+  .set('Authorization', \`Bearer \${token}\`)
+  .expect(200);
+\`\`\`
+
+## What to test E2E
+
+- The **5 golden paths** of your product (signup, login, create primary resource, etc.)
+- Critical error paths (401, 403, 422)
+- Payment / money-related flows — every time
+
+## What NOT to test E2E
+
+- Every CRUD permutation — that's what unit tests are for
+- Library behaviour
+- Anything that takes more than 30 seconds — bring it down to integration
+
+## Performance
+
+E2E tests are slow. Keep the suite under 2 minutes by sharing the app instance across tests in the same file and using a single test DB transaction that rolls back.
+
+## Assignment
+
+Write E2E tests covering signup, login, create-post, comment-on-post, delete-post-as-owner, delete-post-as-non-owner (expect 403).`;
+
+const m7l5 = `## Lesson Objective
+
+Wire your test suite into GitHub Actions so every PR is automatically built, tested, and gated on coverage.
+
+## Why CI matters
+
+Tests that don't run on every PR rot. CI is the only way to keep a green main branch in a team larger than one.
+
+## A GitHub Actions workflow
+
+\`\`\`yaml
+# .github/workflows/ci.yml
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: test }
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test -- --coverage
+        env:
+          TEST_DATABASE_URL: postgres://postgres:test@localhost:5432/postgres
+      - run: npm run test:e2e
+      - uses: codecov/codecov-action@v4
+\`\`\`
+
+## Coverage gates
+
+\`\`\`json
+// package.json — Jest config
+"coverageThreshold": {
+  "global": { "branches": 80, "functions": 80, "lines": 80, "statements": 80 }
+}
+\`\`\`
+
+If a PR drops coverage below 80%, the build fails. Pick the number your team will actually defend.
+
+## Required checks
+
+In GitHub branch protection, require \`test\` to pass before merging. No green check, no merge.
+
+## Deploy on green
+
+\`\`\`yaml
+deploy:
+  needs: test
+  if: github.ref == 'refs/heads/main'
+  runs-on: ubuntu-latest
+  steps:
+    - run: ./scripts/deploy.sh
+\`\`\`
+
+Every merge to \`main\` triggers a deploy — only if tests are green.
+
+## Parallel and matrix
+
+Split tests across shards and Node versions:
+
+\`\`\`yaml
+strategy:
+  matrix:
+    node: [18, 20]
+    shard: [1, 2, 3, 4]
+\`\`\`
+
+## What to ban in CI
+
+- Tests that skip on CI (\`if (process.env.CI) return\`)
+- Flaky tests left in main — quarantine them immediately
+- Long-running smoke tests on every PR — move to a nightly job
+
+## Assignment
+
+Stand up GitHub Actions for your project: lint + unit + integration + E2E + coverage gate. Add a required status check on \`main\` and a deploy job that runs on green.`;
+
+// ===== Module 8: Docker, DevOps & Production Deployment =====
+
+const m8l1 = `## Lesson Objective
+
+Understand containers — what they are, why they exist, and how Docker's images, layers, and registries fit together.
+
+## The problem containers solve
+
+"Works on my machine" was the meme of the 2010s. Containers fix it by packaging your **app + its OS dependencies + its config** into one shippable artifact that runs identically on a laptop, CI, staging, and production.
+
+## Container vs VM
+
+- A **VM** runs a full OS kernel — heavy, minutes to boot
+- A **container** shares the host kernel — lightweight, milliseconds to start
+
+A typical server can run hundreds of containers but maybe a dozen VMs.
+
+## Core concepts
+
+- **Image** — a read-only template (your built app)
+- **Container** — a running instance of an image
+- **Layer** — images are built in stacked layers; cached across builds
+- **Registry** — where images live (Docker Hub, GitHub Container Registry)
+
+## Essential commands
+
+\`\`\`bash
+docker build -t my-api .
+docker run -p 3000:3000 my-api
+docker ps                       # running containers
+docker logs <id>                # tail logs
+docker exec -it <id> sh         # shell into a container
+docker image prune              # reclaim disk
+\`\`\`
+
+## How layer caching works
+
+Each \`Dockerfile\` instruction creates a layer. Docker caches a layer if the instruction and inputs haven't changed. The right order is **least-changing → most-changing**:
+
+\`\`\`dockerfile
+COPY package*.json ./    # changes rarely
+RUN npm ci               # cached unless lockfile changes
+COPY . .                 # changes every commit
+\`\`\`
+
+Get this order wrong and every commit reinstalls dependencies.
+
+## Image size matters
+
+A 1.2GB image takes minutes to push and pull. Use slim base images (\`node:20-alpine\`), multi-stage builds, and \`.dockerignore\` to exclude \`node_modules\` and \`.git\`.
+
+## Assignment
+
+Pull \`postgres:16\`, run it, connect with \`psql\`, then run \`docker logs\` and identify three log lines you understand. Write down what each one means.`;
+
+const m8l2 = `## Lesson Objective
+
+Build a small, fast, production-ready Docker image for a Nest.js app using a multi-stage build.
+
+## A naive Dockerfile (don't ship this)
+
+\`\`\`dockerfile
+FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD ["npm","run","start"]
+\`\`\`
+
+Problems: 1GB+ image, dev dependencies included, runs as root, no compile step.
+
+## The production multi-stage build
+
+\`\`\`dockerfile
+# ---------- build ----------
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build && npm prune --omit=dev
+
+# ---------- run ----------
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=build --chown=app:app /app/node_modules ./node_modules
+COPY --from=build --chown=app:app /app/dist          ./dist
+COPY --from=build --chown=app:app /app/package.json  ./
+USER app
+EXPOSE 3000
+HEALTHCHECK CMD wget -q -O - http://localhost:3000/health || exit 1
+CMD ["node","dist/main.js"]
+\`\`\`
+
+What this gets you:
+
+- ~150MB final image (vs 1GB+)
+- No dev dependencies in production
+- Non-root user
+- Health check the orchestrator can use
+- Source maps and build cache stay in the build stage
+
+## .dockerignore
+
+\`\`\`text
+node_modules
+dist
+.git
+.env
+*.log
+test
+**/*.spec.ts
+\`\`\`
+
+Without this, your build context can be hundreds of MB.
+
+## Configuration via env
+
+Inside the container, read everything from \`process.env\`. Use \`@nestjs/config\` to validate required vars at boot — fail fast if \`DATABASE_URL\` is missing.
+
+## Build and push
+
+\`\`\`bash
+docker build -t ghcr.io/you/api:v1.4.2 .
+docker push  ghcr.io/you/api:v1.4.2
+\`\`\`
+
+Tag with the git SHA *and* a human-readable version. Never deploy \`latest\`.
+
+## Assignment
+
+Write a multi-stage Dockerfile for your Nest app. Goal: final image under 200MB, builds in under 60 seconds on cache hit, runs as non-root.`;
+
+const m8l3 = `## Lesson Objective
+
+Use Docker Compose to orchestrate your Nest API together with Postgres and Redis as one local stack.
+
+## Why Compose
+
+In dev you want one command — \`docker compose up\` — that starts every service your app needs. No "start postgres, then redis, then the worker."
+
+## A complete dev stack
+
+\`\`\`yaml
+# docker-compose.yml
+services:
+  api:
+    build: .
+    ports: ['3000:3000']
+    env_file: .env
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_started }
+    volumes:
+      - ./src:/app/src       # hot reload in dev
+    command: npm run start:dev
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ['CMD','pg_isready','-U','app']
+      interval: 5s
+    ports: ['5432:5432']
+
+  redis:
+    image: redis:7-alpine
+    ports: ['6379:6379']
+
+volumes:
+  pgdata:
+\`\`\`
+
+## Networks
+
+Compose creates a network where services reach each other by **name**. From the \`api\` container, the database URL is \`postgres://app:app@postgres:5432/app\` — not \`localhost\`.
+
+## Volumes
+
+- **Named volumes** (\`pgdata\`) — persist database data across \`docker compose down\`
+- **Bind mounts** (\`./src:/app/src\`) — sync your code into the container for hot reload
+
+## Compose for tests
+
+Keep a separate \`docker-compose.test.yml\` with a throwaway DB on a different port so tests don't trample your dev data.
+
+## Profiles
+
+\`\`\`yaml
+services:
+  bull-board:
+    image: deadly0/bull-board
+    profiles: [tools]
+\`\`\`
+
+\`docker compose --profile tools up\` brings up optional services.
+
+## Common gotchas
+
+- App can't reach DB → check the service name, not localhost
+- \`depends_on\` doesn't wait for the DB to accept connections — add a healthcheck
+- Hot reload doesn't work → make sure the volume mount and Nest's \`watch\` mode are both active
+
+## Assignment
+
+Write a full Compose file for your app: API, worker, Postgres, Redis, and Mailhog for catching dev emails. One \`docker compose up\` should give a working environment.`;
+
+const m8l4 = `## Lesson Objective
+
+Manage configuration and secrets safely across dev, staging, and production — without leaking credentials into git or logs.
+
+## The Twelve-Factor rule
+
+Configuration lives in the **environment**, not in code. Same artifact, different env vars per stage.
+
+## @nestjs/config with validation
+
+\`\`\`ts
+ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: ['.env'],
+  validationSchema: Joi.object({
+    NODE_ENV: Joi.string().valid('development','test','production').required(),
+    PORT: Joi.number().default(3000),
+    DATABASE_URL: Joi.string().uri().required(),
+    JWT_SECRET: Joi.string().min(32).required(),
+    REDIS_URL: Joi.string().uri().required(),
+  }),
+}),
+\`\`\`
+
+Boot fails immediately if anything is missing — exactly what you want in production.
+
+## Local: .env files
+
+\`\`\`text
+# .env  (gitignored)
+DATABASE_URL=postgres://app:app@localhost:5432/app
+JWT_SECRET=do-not-use-this-secret-anywhere-real
+
+# .env.example  (committed)
+DATABASE_URL=
+JWT_SECRET=
+\`\`\`
+
+Commit \`.env.example\` so new contributors know what variables they need. **Never commit \`.env\`.**
+
+## Production: a secret manager
+
+Pick one — they all do the same job:
+
+- AWS Secrets Manager / Parameter Store
+- GCP Secret Manager
+- HashiCorp Vault
+- Doppler / Infisical
+
+Your container reads secrets at boot via the platform's SDK or as injected env vars. Rotate keys regularly; rotation should be one CLI command.
+
+## Docker secrets (Swarm / Compose v3)
+
+\`\`\`yaml
+services:
+  api:
+    secrets: [jwt_secret, db_password]
+secrets:
+  jwt_secret:  { file: ./secrets/jwt }
+  db_password: { external: true }
+\`\`\`
+
+Secrets are mounted as files under \`/run/secrets/\` — not in env vars (which can leak via \`docker inspect\`).
+
+## Logging hygiene
+
+Redact secrets before they hit logs:
+
+\`\`\`ts
+LoggerModule.forRoot({
+  pinoHttp: { redact: ['req.headers.authorization','req.headers.cookie','*.password','*.token'] },
+}),
+\`\`\`
+
+## Rotation playbook
+
+1. Generate the new secret in the manager
+2. Deploy with both old and new accepted (\`JWT_SECRET\`, \`JWT_SECRET_OLD\`)
+3. Wait one access-token TTL window
+4. Remove the old secret
+
+## Assignment
+
+Move every credential out of your repo into a \`.env\` + secret manager. Add Joi validation. Write a runbook for rotating \`JWT_SECRET\` without downtime.`;
+
+const m8l5 = `## Lesson Objective
+
+Ship your Nest.js app to production — VPS, Render, or Railway — with a reverse proxy, TLS, monitoring, and a real release process.
+
+## Pick a deployment target
+
+- **Render / Railway / Fly.io** — easiest. \`git push\` and they build, deploy, give you HTTPS. Start here.
+- **VPS (Hetzner, DigitalOcean)** — most control, cheapest at scale. You own the ops.
+- **Kubernetes** — only when you have 10+ services and a platform team
+
+## VPS deployment with Docker Compose
+
+On a fresh Ubuntu box:
+
+\`\`\`bash
+# install Docker
+curl -fsSL https://get.docker.com | sh
+\`\`\`
+
+\`\`\`yaml
+# /opt/app/docker-compose.prod.yml
+services:
+  api:
+    image: ghcr.io/you/api:v1.4.2
+    restart: unless-stopped
+    env_file: .env.prod
+    expose: ['3000']
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    volumes: [pgdata:/var/lib/postgresql/data]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ['80:80','443:443']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+volumes:
+  pgdata: {}
+  caddy_data: {}
+\`\`\`
+
+\`\`\`text
+# Caddyfile
+api.example.com {
+  reverse_proxy api:3000
+}
+\`\`\`
+
+Caddy gives you automatic HTTPS via Let's Encrypt. Zero config.
+
+## Release process
+
+1. Tag a release: \`git tag v1.4.2 && git push --tags\`
+2. CI builds and pushes \`ghcr.io/you/api:v1.4.2\`
+3. \`ssh prod 'docker compose pull && docker compose up -d'\`
+4. Run migrations: \`docker compose run --rm api npm run migration:run\`
+
+Better: a GitHub Action does steps 3–4 automatically on a green main.
+
+## Zero-downtime deploys
+
+- Run **at least two replicas** behind the reverse proxy
+- Implement a real \`/health\` endpoint (\`@nestjs/terminus\`)
+- Use rolling restart: bring up the new container, wait for healthy, kill the old one
+- Make migrations **backwards-compatible** with the previous code version
+
+## Monitoring & alerting
+
+You need three things in production:
+
+- **Logs** — Loki, CloudWatch, Datadog
+- **Metrics** — Prometheus + Grafana (request rate, error rate, p95)
+- **Alerts** — Pager on error rate > 1% or p95 > 1s
+
+If you can't answer "is the app healthy right now?" in 10 seconds, the dashboard is wrong.
+
+## Backups
+
+Postgres backups every 6 hours, restored once a month to a staging instance. A backup you've never restored is not a backup.
+
+## Assignment
+
+Deploy your Nest app to a real domain with HTTPS, two replicas, a health check, a backup, and a Grafana dashboard. Write a one-page runbook for the next on-call engineer.`;
+
+// ===== Module 9: Capstone =====
+
+const m9l1 = `## Lesson Objective
+
+Plan the architecture of your capstone — service boundaries, data ownership, API contracts, and infrastructure — *before* writing code.
+
+## The capstone product
+
+You'll build **NestCommerce**, a small but real e-commerce platform with:
+
+- Customer accounts and authentication
+- A product catalog
+- Orders and payment intent (mocked)
+- Email + push notifications
+- An admin dashboard
+
+## Service decomposition
+
+Draw boundaries around **data ownership**, not technical layers:
+
+\`\`\`text
+api-gateway        ← public HTTP entry point
+auth-service       ← users, sessions, JWT
+catalog-service    ← products, inventory
+orders-service     ← orders, payment intents
+notifications      ← email + push (worker)
+\`\`\`
+
+Each service has its own database. The gateway owns no data.
+
+## API contract design
+
+Write the public API *before* the code. For each endpoint, define: method, path, request DTO, response shape, error codes, auth requirements.
+
+Document it in OpenAPI from day one. Your frontend partner can build against the spec while you implement.
+
+## Data model
+
+\`\`\`text
+users(id, email, password_hash, role)
+products(id, name, slug, price_cents, stock)
+orders(id, user_id, status, total_cents, created_at)
+order_items(order_id, product_id, quantity, unit_price_cents)
+\`\`\`
+
+Money is stored as **integers** in cents. Never use floats for money.
+
+## Communication map
+
+- Gateway → all services over TCP
+- Orders → Notifications over RabbitMQ (\`order.placed\` event)
+- Notifications worker → SendGrid / FCM
+
+## Infrastructure plan
+
+- Docker Compose for local
+- GitHub Actions for CI
+- A single VPS with Caddy + Docker Compose for prod
+- Postgres for data, Redis for cache + queues
+
+## Deliverables for this lesson
+
+1. A README with the system diagram
+2. An OpenAPI spec stub for each service
+3. A decisions log (why TCP not gRPC, why Postgres not Mongo, etc.)
+
+## Assignment
+
+Submit your architecture document. Get it reviewed before you write a line of code.`;
+
+const m9l2 = `## Lesson Objective
+
+Build the auth, users, catalog, and notifications services as standalone Nest apps with their own modules, tests, and Docker images.
+
+## Monorepo layout
+
+\`\`\`text
+nestcommerce/
+  apps/
+    gateway/
+    auth/
+    catalog/
+    orders/
+    notifications/
+  libs/
+    shared-dtos/
+    shared-config/
+  docker-compose.yml
+  package.json
+\`\`\`
+
+Use Nest's monorepo mode:
+
+\`\`\`bash
+nest new nestcommerce
+nest generate app gateway
+nest generate app auth
+nest generate library shared-dtos
+\`\`\`
+
+## Auth service
+
+- DTOs in \`libs/shared-dtos\` so the gateway and auth share types
+- Postgres for users
+- bcrypt + JWT
+- \`@MessagePattern({ cmd: 'auth.signup' })\`, \`'auth.login'\`, \`'auth.verify-token'\`
+- Tests: unit for the service, integration with the test DB
+
+## Catalog service
+
+- Read-mostly, so heavy Redis caching
+- Endpoints: list products, get product, search, admin create/update
+- Use cursor pagination for the list endpoint
+- Tests: unit for filters/sort, integration for SQL
+
+## Orders service
+
+- The complex one — owns the workflow
+- States: \`pending → paid → shipped → delivered | cancelled\`
+- Emits events to RabbitMQ on every transition
+- Wraps order placement in a transaction; reserves stock before payment
+- Tests: unit for state machine, integration for transactions
+
+## Notifications worker
+
+- No HTTP surface — only listens on RabbitMQ
+- Templates in \`templates/\`
+- Pluggable providers (SendGrid, Postmark)
+- Tests: unit for template rendering, integration with a mock SMTP server
+
+## Shared concerns
+
+Build once, reuse everywhere:
+
+- A \`LoggerModule\` with correlation-id propagation
+- A \`HealthModule\` that exposes \`/health\` consistently
+- A \`ConfigModule\` with Joi validation
+
+## Assignment
+
+Get all four services + the gateway running locally with \`docker compose up\`. Each service has its own README, its own tests, and its own Dockerfile.`;
+
+const m9l3 = `## Lesson Objective
+
+Wire the services together through the gateway, add resilience patterns, and make the whole system observable.
+
+## The gateway
+
+The gateway is the only public surface. Every request:
+
+1. Hits Caddy → TLS termination
+2. Throttler guard checks rate limits (Redis-backed)
+3. JWT guard verifies the token (calls auth service once, caches the answer)
+4. Request handler fans out to the right downstream service
+5. Response is logged with the correlation id
+
+\`\`\`ts
+@Controller('orders')
+@UseGuards(AuthGuard('jwt'))
+export class OrdersGateway {
+  constructor(@Inject('ORDERS') private orders: ClientProxy) {}
+
+  @Post()
+  create(@Req() req, @Body() dto: CreateOrderDto) {
+    return this.orders.send(
+      { cmd: 'orders.create' },
+      { ...dto, userId: req.user.userId },
+    );
+  }
+}
+\`\`\`
+
+## Authorization at the edge
+
+The gateway extracts the user from the JWT and forwards \`userId\` to downstream services. **Never trust** the client-sent \`userId\` — it comes from your verified token.
+
+## Resilience patterns
+
+- **Timeouts** — every downstream call has one. Default 5s, payments 30s
+- **Retries** — only on idempotent reads, with exponential backoff
+- **Circuit breaker** — wrap calls with \`opossum\`; open after 5 failures, half-open after 30s
+- **Bulkheads** — separate connection pools per downstream so a slow service can't starve others
+
+## Event-driven side effects
+
+When orders publishes \`order.placed\`:
+
+- Notifications worker sends a receipt email
+- Analytics worker writes to a fact table
+- Inventory worker decrements stock
+
+None of those run synchronously in the request — the HTTP response is already on its way to the client.
+
+## Observability
+
+- **Structured logs** with a shared correlation id across services
+- **Distributed tracing** with OpenTelemetry → Jaeger or Tempo
+- **Metrics** with Prometheus: request rate, error rate, p95 per service
+- **One Grafana dashboard** with a row per service
+
+## Failure drills
+
+Once it works, break it on purpose:
+
+- Stop the notifications worker → orders still complete, emails queue up
+- Pause the orders DB → gateway returns 503, doesn't crash
+- Kill RabbitMQ → orders service degrades gracefully
+
+If those drills don't pass, you don't have a resilient system.
+
+## Assignment
+
+Run the full system. Execute a load test with \`autocannon\` at 200 RPS for 5 minutes. Capture latency, error rate, and a flame graph of the slowest endpoint.`;
+
+const m9l4 = `## Lesson Objective
+
+Test the full capstone end-to-end, ship it to production with CI/CD, and finish with a runnable, monitored system.
+
+## The testing matrix
+
+| Layer | Tool | What it covers |
+|---|---|---|
+| Unit | Jest | Service logic, guards, pipes |
+| Integration | Jest + test DB | SQL, repository, transactions |
+| Service E2E | Supertest | Each service's HTTP/TCP surface |
+| System E2E | Supertest against the gateway | Cross-service flows |
+| Load | autocannon / k6 | p95, error rate at target RPS |
+
+## A system E2E test
+
+\`\`\`ts
+it('signup → browse → order → receipt', async () => {
+  // signup + login
+  const { body: login } = await request(gateway).post('/auth/signup').send(creds).expect(201);
+  const token = login.access_token;
+
+  // browse
+  const { body: products } = await request(gateway).get('/products').expect(200);
+
+  // order
+  const { body: order } = await request(gateway)
+    .post('/orders')
+    .set('Authorization', \`Bearer \${token}\`)
+    .send({ items: [{ productId: products.items[0].id, qty: 1 }] })
+    .expect(201);
+  expect(order.status).toBe('pending');
+
+  // notification worker eventually sends receipt
+  await waitFor(() => expect(mockMailer.sent).toContainEqual(
+    expect.objectContaining({ template: 'order-receipt', orderId: order.id }),
+  ));
+});
+\`\`\`
+
+## CI/CD pipeline
+
+\`\`\`text
+PR opened
+  → lint, type-check, unit, integration, service E2E (parallel per service)
+  → coverage gate
+  → required check: all green
+PR merged to main
+  → build images, tag with git SHA
+  → push to registry
+  → system E2E against the staging stack
+  → deploy to production (rolling)
+  → smoke test against prod
+  → notify Slack
+\`\`\`
+
+## Production checklist
+
+- [ ] HTTPS with auto-renewing certs
+- [ ] Two API replicas, one DB primary, daily backups
+- [ ] Health checks on every service
+- [ ] Structured JSON logs shipping to a log aggregator
+- [ ] Metrics dashboard with the 4 golden signals (latency, traffic, errors, saturation)
+- [ ] Alerts on error rate > 1% and p95 > 1s
+- [ ] Runbook for the top 5 incident types
+- [ ] Documented secret rotation procedure
+- [ ] On-call rotation (even if it's just you for now)
+
+## What "done" looks like
+
+A new engineer can clone the repo, run \`docker compose up\`, see a working app, run \`npm test\` and watch every test pass, push a PR, and watch CI build, test, and deploy it — without asking you a single question. That is the bar.
+
+## Final assignment
+
+Ship the capstone. Tag \`v1.0.0\`. Open the README and verify someone new to the project could ship a fix on day one. Then write a short post explaining what you built, what you'd do differently next time, and what you learned. That post — and the repo it links to — goes at the top of your portfolio.`;
+
+export const modules: Module[] = [
 
 export const allLessons = modules.flatMap((m) =>
   m.lessons.map((l) => ({ ...l, moduleId: m.id, moduleTitle: m.title })),
