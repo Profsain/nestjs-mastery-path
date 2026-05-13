@@ -5,7 +5,8 @@ import { LessonContent } from "@/components/lesson-content";
 import { Button } from "@/components/ui/button";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/lib/auth";
-import { Check, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { buildLessonChecklist } from "@/lib/lesson-checklist";
+import { Check, ChevronLeft, ChevronRight, Circle, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/lesson/$moduleId/$lessonId")({
@@ -101,6 +102,8 @@ function LessonPage() {
             <Clock className="h-3.5 w-3.5" /> {lesson.duration}
           </p>
 
+          <LessonChecklist content={lesson.content} />
+
           <div className="mt-8">
             <LessonContent source={lesson.content} />
           </div>
@@ -143,5 +146,44 @@ function LessonPage() {
         </article>
       </div>
     </div>
+  );
+}
+
+function LessonChecklist({ content }: { content: string }) {
+  const items = buildLessonChecklist(content);
+  const done = items.filter((i) => i.done).length;
+  return (
+    <section
+      aria-label="Lesson completion checklist"
+      className="mt-6 rounded-xl border border-border/60 bg-accent/20 p-5"
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
+          Completion checklist
+        </h2>
+        <span className="text-xs text-muted-foreground">
+          {done}/{items.length} ready
+        </span>
+      </div>
+      <ul className="space-y-2.5">
+        {items.map((item) => (
+          <li key={item.id} className="flex items-start gap-3">
+            <span
+              className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${
+                item.done
+                  ? "bg-primary text-primary-foreground"
+                  : "border border-border text-muted-foreground"
+              }`}
+            >
+              {item.done ? <Check className="h-3 w-3" /> : <Circle className="h-2.5 w-2.5" />}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-medium leading-tight">{item.label}</p>
+              <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{item.detail}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
