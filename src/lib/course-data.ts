@@ -2078,6 +2078,16 @@ The API Gateway is the single entry point for all clients. It handles:
 > [!CAUTION]
 > **Common Pitfall:** Don't turn your API Gateway into a "Monolithic Gateway" by putting business logic in it. It should stay thin and only handle cross-cutting concerns.
 
+## Quick Knowledge Check
+
+- What is the single biggest tradeoff between a monolith and a microservices architecture?
+- Name two synchronous and two asynchronous communication patterns between services.
+- What problems does an API Gateway solve, and what problems can it create?
+
+## Assignment
+
+Take an existing monolith feature in your project and draw a diagram showing how you would extract it into a microservice. Mark every network boundary, the transport you would choose, and the failure mode you would design for.
+
 ## Lesson Outro
 
 Microservices offer incredible scalability, but they come with significant complexity. You now understand the trade-offs. Next, we'll build our very first **NestJS Microservice** using the built-in TCP transporter.`;
