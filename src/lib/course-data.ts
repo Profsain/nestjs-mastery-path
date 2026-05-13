@@ -1481,6 +1481,16 @@ const hashedPassword = await bcrypt.hash(password, 10);
 > [!CAUTION]
 > **Common Pitfall:** Don't use a salt rounds value higher than 12 unless you have a very specific reason. Higher values make hashing exponentially slower, which can lead to DoS attacks on your login endpoint.
 
+## Quick Knowledge Check
+
+- What does a JWT actually contain, and why is the signature critical?
+- Where should access tokens vs refresh tokens be stored on the client?
+- Why is `bcrypt`/`argon2` preferred over a plain SHA-256 of the password?
+
+## Assignment
+
+Add JWT auth to your API: signup + login endpoints, an `AuthGuard`, a protected `/me` route, and an integration test that proves a tampered token is rejected.
+
 ## Lesson Outro
 
 Security is a journey, not a destination. You now have a solid foundation for securing your NestJS APIs. Next, we'll look at **Role-Based Access Control (RBAC)** to manage *what* authenticated users can do.`;
