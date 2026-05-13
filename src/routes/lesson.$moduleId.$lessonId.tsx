@@ -5,7 +5,8 @@ import { LessonContent } from "@/components/lesson-content";
 import { Button } from "@/components/ui/button";
 import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/lib/auth";
-import { Check, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { buildLessonChecklist } from "@/lib/lesson-checklist";
+import { Check, ChevronLeft, ChevronRight, Circle, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/lesson/$moduleId/$lessonId")({
