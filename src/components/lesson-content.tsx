@@ -1,9 +1,13 @@
 import { Fragment } from "react";
+import { QuizCard } from "./quiz-card";
+import { Quiz } from "@/lib/course-data";
+import { ArchitectureVisualizer } from "./architecture-visualizer";
 
 type Block =
   | { type: "p" | "h2" | "h3" | "ul" | "ol"; value: string }
   | { type: "code"; value: string; lang?: string }
   | { type: "video"; value: string }
+  | { type: "quiz"; value: string }
   | { type: "table"; header: string[]; rows: string[][] }
   | { type: "hr" };
 
@@ -11,7 +15,7 @@ type Block =
  * Markdown-style renderer: ## h2, ### h3, fenced code, paragraphs, - / 1. lists,
  * tables (| a | b |), --- hr, **bold**, `inline`.
  */
-export function LessonContent({ source }: { source: string }) {
+export function LessonContent({ source, quizzes = [] }: { source: string; quizzes?: Quiz[] }) {
   const blocks: Block[] = [];
   const lines = source.split("\n");
   let i = 0;
@@ -94,6 +98,13 @@ export function LessonContent({ source }: { source: string }) {
       continue;
     }
 
+    if (line.startsWith("[quiz:")) {
+      const id = line.slice(6, -1).trim();
+      blocks.push({ type: "quiz", value: id });
+      i++;
+      continue;
+    }
+
     if (line.trim() === "") {
       i++;
       continue;
@@ -120,15 +131,29 @@ export function LessonContent({ source }: { source: string }) {
             </div>
           );
 
+        if (b.type === "quiz") {
+          const quiz = quizzes.find((q) => q.id === b.value);
+          if (!quiz) return null;
+          return (
+            <div key={idx} className="my-10">
+              <QuizCard quiz={quiz} />
+            </div>
+          );
+        }
+
         if (b.type === "h2") return <h2 key={idx}>{b.value}</h2>;
         if (b.type === "h3") return <h3 key={idx}>{b.value}</h3>;
         if (b.type === "hr") return <hr key={idx} />;
-        if (b.type === "code")
+        if (b.type === "code") {
+          if (b.lang === "mermaid") {
+            return <ArchitectureVisualizer key={idx} definition={b.value} />;
+          }
           return (
             <pre key={idx}>
               <code>{b.value}</code>
             </pre>
           );
+        }
         if (b.type === "ul")
           return (
             <ul key={idx}>

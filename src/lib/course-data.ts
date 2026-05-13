@@ -1,8 +1,23 @@
+export type QuizQuestion = {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number; // index of the correct option
+  explanation: string;
+};
+
+export type Quiz = {
+  id: string;
+  title: string;
+  questions: QuizQuestion[];
+};
+
 export type Lesson = {
   id: string;
   title: string;
   duration: string;
   content: string;
+  quizzes?: Quiz[];
 };
 
 export type ModuleVideo = {
@@ -87,18 +102,12 @@ User gets logged in
 
 ## Visual Mental Model
 
-\`\`\`text
-Frontend (React/Mobile App)
-        ↓
-     API Request
-        ↓
-Backend Server (Nest.js)
-        ↓
-Database (PostgreSQL/MongoDB)
-        ↓
-API Response
-        ↓
-Frontend Updates UI
+\`\`\`mermaid
+graph TD
+    Client[Frontend: React/Mobile] -- API Request --> Server[Backend Server: Nest.js]
+    Server -- Query --> DB[(Database: PostgreSQL)]
+    DB -- Result --> Server
+    Server -- API Response --> Client
 \`\`\`
 
 ## What Is a Server?
@@ -349,19 +358,7 @@ function add(a: number, b: number): number {
 - **Skipping fundamentals** — copying tutorials without understanding
 - **Ignoring terminal skills** — backend engineers must be comfortable with the terminal
 
-## Quick Knowledge Check
-
-**Q1.** What is the role of \`main.ts\`?
-- A. Stores database models
-- **B. Starts the application** ✓
-- C. Handles authentication
-- D. Creates APIs
-
-**Q2.** What does a controller do?
-- **B. Handles requests and responses** ✓
-
-**Q3.** Why does Nest.js use TypeScript?
-- **A. Better scalability and type safety** ✓
+[quiz:m1l2-quiz]
 
 ## Practical Exercise
 
@@ -427,16 +424,19 @@ Nest.js is not just *"a way to create APIs"* — it's **a system for organizing 
 
 ## Visual Architecture Flow
 
-\`\`\`text
-Request
-   ↓
-Controller
-   ↓
-Service
-   ↓
-Database / API
-   ↓
-Response
+\`\`\`mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant Service
+    participant Database
+
+    Client->>Controller: HTTP Request (GET /users)
+    Controller->>Service: Call method (findAllUsers)
+    Service->>Database: Query Data
+    Database-->>Service: Return Data
+    Service-->>Controller: Return Result
+    Controller-->>Client: HTTP Response (JSON)
 \`\`\`
 
 ## Understanding Modules
@@ -583,11 +583,7 @@ Visit \`http://localhost:3000/products\` — you'll see the array. You've now bu
 - Fearing dependency injection ("looks complicated") — in reality, DI makes large systems **manageable**
 - Ignoring architecture for the sake of "just making it work"
 
-## Quick Knowledge Check
-
-**Q1.** Primary role of a controller? **B. Handle requests** ✓
-**Q2.** Where should business logic live? **C. Services** ✓
-**Q3.** What is Dependency Injection? **B. Automatic dependency management** ✓
+[quiz:m1l3-quiz]
 
 ## Practical Exercise
 
@@ -3783,8 +3779,76 @@ Generators include class, controller, decorator, exception, filter, gateway, gua
 - **Middleware / Interceptor / Pipe / Guard** — the four request-layer concepts you'll master in Module 1`,
     lessons: [
       { id: "architecture", title: "Understanding Modern Backend Architecture", duration: "15 min", content: m1l1 },
-      { id: "environment", title: "Setting Up a Professional Nest.js Environment", duration: "20 min", content: m1l2 },
-      { id: "core-concepts", title: "Nest.js Core Concepts: Modules, Controllers, Providers", duration: "30 min", content: m1l3 },
+      { 
+        id: "environment", 
+        title: "Setting Up a Professional Nest.js Environment", 
+        duration: "20 min", 
+        content: m1l2,
+        quizzes: [
+          {
+            id: "m1l2-quiz",
+            title: "Environment Setup Check",
+            questions: [
+              {
+                id: "q1",
+                question: "What is the role of main.ts in a NestJS application?",
+                options: ["Stores database models", "Starts the application", "Handles authentication", "Creates APIs"],
+                correctAnswer: 1,
+                explanation: "main.ts is the entry point of the application. It uses NestFactory to create the application instance and start the HTTP server."
+              },
+              {
+                id: "q2",
+                question: "What does a controller do in NestJS?",
+                options: ["Manages database connections", "Handles incoming requests and returns responses", "Stores business logic", "Configures dependency injection"],
+                correctAnswer: 1,
+                explanation: "Controllers are responsible for handling incoming requests and returning responses to the client."
+              },
+              {
+                id: "q3",
+                question: "Why does Nest.js use TypeScript by default?",
+                options: ["Better scalability and type safety", "It makes the code run faster in the browser", "It's required by Node.js", "To avoid using classes"],
+                correctAnswer: 0,
+                explanation: "TypeScript provides static typing, which helps catch errors early and makes large codebases much easier to maintain and scale."
+              }
+            ]
+          }
+        ]
+      },
+      { 
+        id: "core-concepts", 
+        title: "Nest.js Core Concepts: Modules, Controllers, Providers", 
+        duration: "30 min", 
+        content: m1l3,
+        quizzes: [
+          {
+            id: "m1l3-quiz",
+            title: "Architecture Mastery",
+            questions: [
+              {
+                id: "q1",
+                question: "What is the primary role of a Controller in NestJS?",
+                options: ["Connecting to the database", "Handling incoming requests and defining routes", "Storing complex business logic", "Managing dependency injection"],
+                correctAnswer: 1,
+                explanation: "Controllers are the entry point for HTTP requests. They route incoming traffic and return responses to the client."
+              },
+              {
+                id: "q2",
+                question: "Where should the 'heavy lifting' business logic live?",
+                options: ["Controllers", "Modules", "Services (Providers)", "main.ts"],
+                correctAnswer: 2,
+                explanation: "Services are designed to hold business logic. This keeps controllers thin and allows logic to be reused across the application."
+              },
+              {
+                id: "q3",
+                question: "What is Dependency Injection in the context of NestJS?",
+                options: ["Manually creating instances with 'new'", "A way to inject CSS into HTML", "A pattern where Nest manages class instances and provides them where needed", "A method for database migrations"],
+                correctAnswer: 2,
+                explanation: "Dependency Injection is a core NestJS pattern where the framework handles the creation and lifecycle of providers, 'injecting' them into constructors automatically."
+              }
+            ]
+          }
+        ]
+      },
       { id: "typescript", title: "TypeScript for Professional Backend Engineers", duration: "25 min", content: m1l4 },
       { id: "lifecycle", title: "The Nest.js Request Lifecycle", duration: "35 min", content: m1l5 },
     ],

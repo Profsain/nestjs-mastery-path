@@ -40,9 +40,18 @@ export function useProgress() {
   });
 
   const set = new Set(completed);
+  const totalXp = set.size * 100; // 100 XP per lesson
+  const level = Math.floor(totalXp / 500) + 1; // Level up every 500 XP
+  const xpToNextLevel = 500 - (totalXp % 500);
+  const levelProgress = ((totalXp % 500) / 500) * 100;
+
   return {
     completedIds: set,
     count: set.size,
+    totalXp,
+    level,
+    xpToNextLevel,
+    levelProgress,
     isDone: (id: string) => set.has(id),
     toggle: (lessonId: string, done: boolean) => toggle.mutate({ lessonId, done }),
   };
