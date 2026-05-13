@@ -1485,11 +1485,11 @@ const hashedPassword = await bcrypt.hash(password, 10);
 
 - What does a JWT actually contain, and why is the signature critical?
 - Where should access tokens vs refresh tokens be stored on the client?
-- Why is `bcrypt`/`argon2` preferred over a plain SHA-256 of the password?
+- Why is \`bcrypt\`/\`argon2\` preferred over a plain SHA-256 of the password?
 
 ## Assignment
 
-Add JWT auth to your API: signup + login endpoints, an `AuthGuard`, a protected `/me` route, and an integration test that proves a tampered token is rejected.
+Add JWT auth to your API: signup + login endpoints, an \`AuthGuard\`, a protected \`/me\` route, and an integration test that proves a tampered token is rejected.
 
 ## Lesson Outro
 
