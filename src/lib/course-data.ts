@@ -35,11 +35,16 @@ By the end of this lesson, you will:
 - Understand monolith vs microservices
 - Understand why Nest.js exists
 
+[video:GHTA143_b-s]
+
 ## Lesson Introduction
 
 Imagine opening WhatsApp, Instagram, Moniepoint, Uber, or Netflix. When you click a button, what actually happens behind the scenes? How does your login work? How do your messages save instantly? How does your payment process securely?
 
 That invisible system powering everything is the **backend**.
+
+> [!TIP]
+> **Pro Tip:** In the professional world, "Backend Engineering" is about more than just writing code; it's about designing systems that are reliable, secure, and can handle millions of users.
 
 ## What Is a Backend?
 
@@ -162,39 +167,8 @@ User Service
 **Advantages:** scalable, independently deployable, fault isolation.
 **Disadvantages:** more complexity, distributed systems challenges, harder DevOps.
 
-### When to Use Each
-
-- **Monolith** is best for startups, MVPs, small teams, early-stage products.
-- **Microservices** are best for large-scale systems, enterprise products, multiple engineering teams.
-
-Nest.js supports **both** — monoliths, microservices, event-driven, and hybrid architectures. This is what makes it extremely powerful.
-
-## Backend Engineer Mindset
-
-Beginners think: *"How do I write code?"*
-Professional engineers think: *"How do I design scalable systems?"*
-
-This course teaches both.
-
-## Quick Knowledge Check
-
-**Q1.** What is the primary role of the backend?
-- A. Designing UI
-- **B. Managing business logic and data** ✓
-- C. Styling websites
-- D. Creating animations
-
-**Q2.** What does an API do?
-- A. Stores passwords
-- B. Designs interfaces
-- **C. Allows systems to communicate** ✓
-- D. Replaces databases
-
-**Q3.** Which architecture is easier for startups initially?
-- A. Microservices
-- **B. Monolith** ✓
-- C. Distributed systems
-- D. Event sourcing
+> [!CAUTION]
+> **Common Pitfall:** Don't start with microservices on day one for a simple app. Start with a well-structured monolith (which NestJS makes easy) and split it later when you actually need to scale.
 
 ## Practical Exercise
 
@@ -204,10 +178,6 @@ Analyze 3 applications you use daily. For each app, identify the frontend, possi
 - Frontend: Mobile app
 - Backend: Message processing
 - Database: Chat history storage
-
-## Assignment
-
-Write a short explanation (minimum 300 words): *"How does a food delivery app work internally from frontend to backend?"*
 
 ## Lesson Outro
 
@@ -1075,85 +1045,83 @@ You now understand the true internal lifecycle of Nest.js applications — the s
 
 const m2l1 = `## Lesson Objective
 
-By the end of this lesson you'll be able to design and build a complete CRUD resource in Nest.js using controllers, services, DTOs, and proper REST conventions.
+By the end of this lesson, you will:
 
-## What REST really means in Nest
+- Master the fundamental CRUD (Create, Read, Update, Delete) operations
+- Understand how to structure routes and controllers professionally
+- Learn to handle different HTTP methods properly
+- Build a real-world product management API
 
-The book defines REST as **Representative State Transfer** — a paradigm that uses JSON for data transfer, which lines up naturally with how Nest stores objects. A REST request in Nest flows through this pipeline:
+[video:GHTA143_b-s]
 
-1. Client sends an **HTTP call** to the server
-2. Nest **routes** the call based on URL + HTTP verb
-3. Optional **middleware** runs first
-4. The **Controller** receives the request
-5. The controller delegates to a **Service**
-6. The service may talk to a **Database** through an ORM
-7. The server returns an OK response, with a body for \`GET\` requests or status 200/201 for \`POST/PUT/DELETE\`
+## What is CRUD?
 
-## Building a CRUD resource
+CRUD is the bread and butter of backend engineering. Almost every application—from Twitter to Amazon—is built on these four operations.
 
-Generate the scaffolding with the CLI:
+| Operation | HTTP Method | Use Case |
+|-----------|-------------|----------|
+| **C**reate | \`POST\` | Adding a new item |
+| **R**ead | \`GET\` | Fetching data |
+| **U**pdate | \`PUT / PATCH\` | Modifying existing data |
+| **D**elete | \`DELETE\` | Removing data |
 
-\`\`\`bash
-nest g resource entries
-\`\`\`
+## Building Your First CRUD Controller
 
-The CLI creates a module, controller, service, DTO files, and an entity stub. Here is a complete CRUD controller:
+In Nest.js, controllers are decorated with \`@Controller()\`.
 
 \`\`\`ts
-@Controller('entries')
-export class EntryController {
-  constructor(private readonly entries: EntryService) {}
-
+@Controller('products')
+export class ProductsController {
   @Get()
-  findAll(): Promise<Entry[]> {
-    return this.entries.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.entries.findById(+id);
+  findAll() {
+    return 'This action returns all products';
   }
 
   @Post()
-  create(@Body() dto: CreateEntryDto) {
-    return this.entries.create(dto);
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateEntryDto) {
-    return this.entries.update(+id, dto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.entries.remove(+id);
+  create() {
+    return 'This action adds a new product';
   }
 }
 \`\`\`
 
-## DTOs — the contract between client and API
+> [!TIP]
+> **Pro Tip:** Use \`PATCH\` for partial updates (e.g., updating just the price) and \`PUT\` for full replacements. In modern APIs, \`PATCH\` is often preferred for its flexibility.
 
-A Data Transfer Object describes the *shape* of incoming data. DTOs separate the public API contract from your internal entity:
+## Handling Route Parameters
+
+How do you fetch a specific product? By its **ID**.
 
 \`\`\`ts
-export class CreateEntryDto {
-  @IsString()  @MinLength(3)  title: string;
-  @IsString()  @MinLength(10) body: string;
-  @IsOptional() @IsBoolean()  published?: boolean;
+@Get(':id')
+findOne(@Param('id') id: string) {
+  return \`This action returns product #\${id}\`;
 }
 \`\`\`
 
-## Resource design rules
+## Handling Request Bodies
 
-- One resource per controller — \`/entries\`, \`/users\`, \`/comments\`
-- Use HTTP verbs semantically: \`GET\` read, \`POST\` create, \`PUT/PATCH\` update, \`DELETE\` remove
-- Always return JSON (Nest does this by default)
-- Status codes mean something: 200 OK, 201 Created, 204 No Content, 404 Not Found
+When creating a product, the client sends data in the body. We use \`@Body()\` to access it.
 
-## Exercise
+\`\`\`ts
+@Post()
+create(@Body() body: any) {
+  return body;
+}
+\`\`\`
 
-Build a \`/posts\` resource with full CRUD, a DTO with validation, and proper status codes for create (201) and delete (204).
+> [!CAUTION]
+> **Common Pitfall:** Never use \`any\` for request bodies in production! Use **DTOs (Data Transfer Objects)** to define and validate the shape of your data. We'll cover this in the next lesson.
 
+## Practical Exercise
+
+Create a \`TasksController\` with endpoints for:
+1. \`GET /tasks\` (all tasks)
+2. \`POST /tasks\` (new task)
+3. \`DELETE /tasks/:id\` (delete task)
+
+## Lesson Outro
+
+You've mastered the core of REST APIs! But right now, our API is "dumb"—it doesn't validate data or handle errors gracefully. Next, we'll dive into **Data Validation & DTOs** to make our API production-ready.
 ## Assignment
 
 Design a \`/tasks\` API with sub-resources \`/tasks/:id/comments\`. Document each endpoint's verb, path, payload, and response code.`;
@@ -1458,88 +1426,64 @@ export class AppModule {}
 
 Wire structured JSON logging with a correlation ID, add a \`/health\` endpoint, and ship a Grafana/Datadog dashboard with request rate, error rate, p95 latency.`;
 
-// ===== Module 3: Authentication, Security & Authorization =====
 
 const m3l1 = `## Lesson Objective
 
-Implement complete JWT authentication using \`@nestjs/passport\` — the same approach the book walks through in Chapter 3.
+By the end of this lesson, you will:
 
-## Why JWT
+- Understand the fundamentals of JSON Web Tokens (JWT)
+- Implement a secure authentication system with Passport.js
+- Protect routes using NestJS Guards
+- Learn how to manage user sessions professionally
 
-The book lists three common Passport strategies: **local** (email + password), **jwt** (token-based, used heavily), and social (Google, Facebook, Twitter). JWT works because once the user logs in, every subsequent call carries a signed token; the server verifies it without hitting the database.
+[video:GHTA143_b-s]
 
-## Install
+## Why JWT?
 
-\`\`\`bash
-npm install @nestjs/passport passport passport-jwt @nestjs/jwt bcrypt
-npm install -D @types/passport-jwt @types/bcrypt
-\`\`\`
+In traditional web apps, sessions were stored on the server. In modern, distributed backend systems, we use **JWT (JSON Web Tokens)**. 
 
-## The auth service
+### Benefits of JWT:
+- **Stateless:** The server doesn't need to store session data.
+- **Scalable:** Works perfectly with microservices and load balancers.
+- **Secure:** Tokens are digitally signed and can't be tampered with.
 
-\`\`\`ts
-@Injectable()
-export class AuthService {
-  constructor(
-    private users: UsersService,
-    private jwt: JwtService,
-  ) {}
+## How JWT Works
 
-  async validateUser(email: string, password: string) {
-    const user = await this.users.findByEmail(email);
-    if (user && await bcrypt.compare(password, user.passwordHash)) {
-      return user;
-    }
-    return null;
-  }
+1. User logs in with credentials.
+2. Server validates and returns a signed **JWT**.
+3. Client stores the token (usually in LocalStorage or Cookies).
+4. Client sends the token in the \`Authorization\` header for every request.
+5. Server verifies the signature and grants access.
 
-  async login(user: User) {
-    const payload = { sub: user.id, email: user.email };
-    return {
-      access_token: this.jwt.sign(payload, { expiresIn: '15m' }),
-      refresh_token: this.jwt.sign(payload, { expiresIn: '7d' }),
-    };
-  }
-}
-\`\`\`
+> [!TIP]
+> **Pro Tip:** Always use \`HttpOnly\` cookies to store JWTs if your frontend and backend share the same domain. This prevents XSS attacks from stealing the token.
 
-## The JWT strategy
+## Implementing Auth Guards
+
+Guards determine whether a request should be handled by a route or not.
 
 \`\`\`ts
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
-    super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
-    });
-  }
-  async validate(payload: any) {
-    return { userId: payload.sub, email: payload.email };
-  }
-}
-\`\`\`
-
-## Protecting routes
-
-\`\`\`ts
-@UseGuards(AuthGuard('jwt'))
-@Get('me')
+@UseGuards(JwtAuthGuard)
+@Get('profile')
 getProfile(@Request() req) {
   return req.user;
 }
 \`\`\`
 
-## Access vs refresh tokens
+## Password Hashing
 
-- **Access token** — short-lived (15m), sent on every request
-- **Refresh token** — long-lived (7d), used only to mint new access tokens, stored httpOnly
-- Rotate refresh tokens on every use; revoke on logout
+Never store passwords in plain text! Use **bcrypt** to hash passwords before saving them to the database.
 
-## Assignment
+\`\`\`ts
+const hashedPassword = await bcrypt.hash(password, 10);
+\`\`\`
 
-Build \`POST /auth/login\`, \`POST /auth/refresh\`, \`POST /auth/logout\`, and a protected \`GET /me\`. Store refresh tokens in the database so logout is real.`;
+> [!CAUTION]
+> **Common Pitfall:** Don't use a salt rounds value higher than 12 unless you have a very specific reason. Higher values make hashing exponentially slower, which can lead to DoS attacks on your login endpoint.
+
+## Lesson Outro
+
+Security is a journey, not a destination. You now have a solid foundation for securing your NestJS APIs. Next, we'll look at **Role-Based Access Control (RBAC)** to manage *what* authenticated users can do.`;
 
 const m3l2 = `## Lesson Objective
 
@@ -1756,56 +1700,67 @@ Run an audit on your existing API. Submit a checklist of which OWASP Top 10 issu
 
 const m4l1 = `## Lesson Objective
 
-Understand the trade-offs between SQL and NoSQL, learn relational modelling and normalization, and choose the right database for the job.
+By the end of this lesson, you will:
 
-## What an ORM gives you
+- Understand the difference between SQL and NoSQL databases
+- Learn the basics of Object-Relational Mapping (ORM)
+- Set up a PostgreSQL database for a NestJS project
+- Design scalable database schemas
 
-The book defines an **ORM** as an Object-Relational Mapping — a layer that translates between in-memory objects (a \`User\` or \`Comment\` class) and rows in a relational database. The ORM lets you create a Data Transfer Object that knows how to write objects to a database and read SQL results back into memory.
+[video:GHTA143_b-s]
 
 ## SQL vs NoSQL
 
-| | SQL (Postgres, MySQL) | NoSQL (MongoDB) |
-|---|---|---|
-| Schema | Strict, enforced | Flexible per document |
-| Joins | First-class | Manual / via aggregation |
-| Transactions | ACID by default | Limited across documents |
-| When to use | Relational data, integrity-critical | Document-shaped, fast schema iteration |
+Choosing the right database is one of the most important decisions for a backend engineer.
 
-Default to PostgreSQL. Switch only when you have a concrete reason.
+| Feature | SQL (PostgreSQL, MySQL) | NoSQL (MongoDB, Redis) |
+|-----------|-------------------------|------------------------|
+| **Structure** | Relational, Table-based | Document, Key-Value |
+| **Schema** | Predefined, Strict | Dynamic, Flexible |
+| **Scaling** | Vertical (better for complex queries) | Horizontal (better for huge datasets) |
 
-## Normalization
+## What is an ORM?
 
-Normalize until joins hurt; denormalize where it pays. The classical forms:
+An **ORM (Object-Relational Mapper)** allows you to interact with your database using code (TypeScript classes) instead of raw SQL queries.
 
-- **1NF** — atomic values, no repeating groups
-- **2NF** — every non-key column depends on the whole key
-- **3NF** — no transitive dependencies through non-keys
+### Why use an ORM?
+- **Type Safety:** Get autocomplete and compile-time checks.
+- **Security:** Automatically prevents SQL Injection.
+- **Maintainability:** Easier to refactor and migrate.
 
-In practice: separate \`users\`, \`posts\`, \`comments\` into three tables. Don't store an array of post titles on the user row.
+> [!TIP]
+> **Pro Tip:** While ORMs are great, knowing raw SQL is a superpower. Sometimes a complex query is better written in SQL for performance.
 
-## Modelling exercise — a blog
+## Popular ORMs for NestJS
 
-\`\`\`text
-users (id, email, password_hash, created_at)
-posts (id, user_id FK→users, title, body, published, created_at)
-comments (id, post_id FK→posts, user_id FK→users, body, created_at)
+1. **TypeORM:** The most mature and widely used.
+2. **Prisma:** Modern, developer-friendly, and very fast.
+3. **Mongoose:** The standard for MongoDB.
+
+## Designing a Schema
+
+A good schema is normalized. This means reducing redundancy and ensuring data integrity.
+
+\`\`\`ts
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  email: string;
+
+  @OneToMany(() => Post, (post) => post.author)
+  posts: Post[];
+}
 \`\`\`
 
-That schema supports millions of users without re-design.
+> [!CAUTION]
+> **Common Pitfall:** Avoid "N+1" query problems by using \`relations\` or \`joins\` properly. Loading 100 users and then doing 100 separate queries for their posts will kill your database performance.
 
-## Indexes
+## Lesson Outro
 
-Indexes are how databases stay fast. Add them on:
-
-- Foreign keys (\`post_id\`, \`user_id\`)
-- Columns you filter on (\`WHERE email = ?\`)
-- Columns you sort by (\`ORDER BY created_at\`)
-
-Don't over-index — every index slows writes.
-
-## Assignment
-
-Design a schema for a Twitter-like product: users, tweets, follows, likes. Justify each foreign key, every index, and whether anything should be denormalized.`;
+You now understand the storage engine of the internet! Next, we'll get our hands dirty and connect a **PostgreSQL** database to our NestJS app using **TypeORM**.`;
 
 const m4l2 = `## Lesson Objective
 
@@ -2060,45 +2015,52 @@ Add Redis caching to your hottest endpoint. Measure p95 latency before/after wit
 
 const m5l1 = `## Lesson Objective
 
-Understand why and when to use microservices, and how Nest's definition differs from the textbook one.
+By the end of this lesson, you will:
 
-## The Nest definition
+- Understand the core principles of Microservices Architecture
+- Learn about different communication styles (Synchronous vs Asynchronous)
+- Understand the role of an API Gateway
+- Learn when to transition from Monolith to Microservices
 
-The book makes a precise distinction: in Nest, **microservices are applications that use a transport layer other than HTTP** — TCP, Redis pub/sub, and others (any custom one via the \`CustomTransportStrategy\` interface). They allow a team to work on their own service within a global project and make changes without affecting the rest, since the services are loosely coupled. This enables CI/CD independent of other teams.
+[video:0p69fJqR38k]
 
-## Why teams adopt microservices
+## What are Microservices?
 
-- **Independent deployment** — ship one service without redeploying everything
-- **Fault isolation** — the payments service going down doesn't take auth down
-- **Polyglot** — use the right language/database per service
-- **Team scaling** — one team owns one service end-to-end
+Microservices are an architectural style that structures an application as a collection of services that are:
+- **Independently deployable**
+- **Loosely coupled**
+- **Organized around business capabilities**
+- **Owned by small teams**
 
-## What you pay for it
+## Communication Patterns
 
-- Distributed systems are **hard** — network partitions, retries, idempotency, observability
-- Local function calls become network calls — latency goes up
-- You need a service registry, a deployment pipeline, and tracing
-- Data ownership becomes a real architectural decision
+### Synchronous (Request/Response)
+- **HTTP / REST**
+- **gRPC**
+- Use when you need an immediate answer (e.g., checking if a user exists).
 
-## When NOT to use microservices
+### Asynchronous (Event-Driven)
+- **Message Queues (RabbitMQ, Kafka)**
+- **Pub/Sub (Redis)**
+- Use when you don't need an immediate answer (e.g., sending an email after signup).
 
-- You have one team of fewer than 10 engineers → stay monolithic
-- You don't yet know the service boundaries → splitting too early creates the wrong seams
-- You can't run a load test or trace a request across services → fix observability first
+> [!TIP]
+> **Pro Tip:** In a professional microservices environment, aim for **Event-Driven Architecture** as much as possible. This reduces coupling and makes your system more resilient.
 
-## Service boundary heuristic
+## The API Gateway Pattern
 
-Draw boundaries around **data ownership**, not technical layers. A "billing" service that owns the invoices table is a good boundary. An "ORM service" or "validation service" is not.
+The API Gateway is the single entry point for all clients. It handles:
+- **Routing**
+- **Authentication**
+- **Rate Limiting**
+- **Load Balancing**
 
-## Communication patterns
+> [!CAUTION]
+> **Common Pitfall:** Don't turn your API Gateway into a "Monolithic Gateway" by putting business logic in it. It should stay thin and only handle cross-cutting concerns.
 
-- **Request/response** over TCP or HTTP — simple, synchronous
-- **Pub/sub** over Redis or RabbitMQ — fire-and-forget events
-- **Streams** — Kafka for high-throughput event logs
+## Lesson Outro
 
-## Assignment
-
-Take your current monolith. Identify three candidate services with clear data ownership. Write a one-pager: name, responsibilities, data, communication style, failure mode.`;
+Microservices offer incredible scalability, but they come with significant complexity. You now understand the trade-offs. Next, we'll build our very first **NestJS Microservice** using the built-in TCP transporter.`;
 
 const m5l2 = `## Lesson Objective
 
@@ -2423,42 +2385,47 @@ Move "send welcome email" to a RabbitMQ-backed queue with a DLQ. Crash the consu
 
 const m6l1 = `## Lesson Objective
 
-Offload slow work to background jobs with BullMQ — keeping your HTTP API fast and your users happy.
+By the end of this lesson, you will:
 
-## When you need a queue
+- Understand the concept of Background Jobs and Task Queues
+- Learn how to offload heavy tasks to keep your API responsive
+- Implement a task queue using BullMQ and Redis
+- Learn about retries, backoffs, and job prioritization
 
-If a request takes longer than ~200ms because of work that doesn't have to finish *before* responding (sending email, generating a PDF, processing an image, calling a slow third-party API), it belongs in a queue.
+[video:Jm3X1r8qFm4]
 
-## Setup
+## Why use Background Jobs?
 
-\`\`\`bash
-npm install @nestjs/bullmq bullmq
-\`\`\`
+Imagine a user signs up. You need to:
+1. Save user to database (Fast)
+2. Send a welcome email (Slow)
+3. Notify the marketing team (Slow)
+4. Generate an initial profile avatar (Slow)
 
-\`\`\`ts
-@Module({
-  imports: [
-    BullModule.forRoot({ connection: { host: 'redis', port: 6379 } }),
-    BullModule.registerQueue({ name: 'emails' }),
-  ],
-})
-export class JobsModule {}
-\`\`\`
+If you do all this in the request-response cycle, the user will be waiting for seconds. With background jobs, you do step 1 and immediately return "Success!". Steps 2, 3, and 4 happen in the background.
 
-## Producer
+## Introduction to BullMQ
+
+**BullMQ** is the most popular, fast, and reliable Redis-based queue for Node.js. NestJS has a first-class integration for it.
+
+### Key Concepts:
+- **Producer:** The part of your code that adds jobs to the queue.
+- **Consumer (Worker):** The part of your code that processes the jobs.
+- **Queue:** The Redis-backed storage where jobs wait.
+
+> [!TIP]
+> **Pro Tip:** Always set up **Retries** and **Exponential Backoff**. If an email service is down temporarily, BullMQ will automatically try again after a few minutes instead of just failing.
+
+## Implementing a Simple Queue
 
 \`\`\`ts
 @Injectable()
-export class SignupService {
-  constructor(@InjectQueue('emails') private emails: Queue) {}
+export class AudioService {
+  constructor(@InjectQueue('audio') private audioQueue: Queue) {}
 
-  async signup(dto: SignupDto) {
-    const user = await this.users.create(dto);
-    await this.emails.add('welcome', { userId: user.id }, {
-      attempts: 5,
-      backoff: { type: 'exponential', delay: 5000 },
-      removeOnComplete: 1000,
-      removeOnFail: false,
+  async transcode(file: string) {
+    await this.audioQueue.add('transcode', {
+      file: file,
     });
     return user;
   }
@@ -2699,59 +2666,52 @@ Profile your slowest endpoint. Find the dominant cost (DB, CPU, network). Fix it
 
 const m7l1 = `## Lesson Objective
 
-Understand why automated tests exist, the testing pyramid, and how Nest.js makes each layer easy.
+By the end of this lesson, you will:
 
-## Why we test — straight from the book
+- Understand the "Testing Pyramid" and where NestJS fits in
+- Learn the difference between Unit, Integration, and E2E tests
+- Set up a testing environment with Jest
+- Write your first automated test in NestJS
 
-> Testing your Nest server will be imperative so that once it is deployed there are no unforeseen issues and it all runs smoothly.
+[video:jOytv6PQxN0]
 
-The book teaches two kinds of tests:
+## Why Automated Testing?
 
-- **Unit tests** — testing small blocks of code: an individual function, a controller, an interceptor, any injectable. Nest provides the \`@nestjs/testing\` package specifically for this, with files named \`*.spec.ts\` and \`*.test.ts\`.
-- **E2E tests** — testing entire functionality rather than individual pieces, end to end. Nest applications use Jest plus the \`supertest\` library to simulate HTTP requests.
+Testing isn't just about finding bugs. It's about **confidence**. 
+- Can I refactor this code without breaking everything? **Yes.**
+- Can I ship this new feature safely? **Yes.**
+- Does the app still work after I updated my dependencies? **Yes.**
 
-## The testing pyramid
+## The Testing Pyramid
 
-\`\`\`text
-         /\\
-        /E2E\\          few, slow, high confidence
-       /------\\
-      / Integ. \\       some, medium speed
-     /----------\\
-    /   Unit     \\     many, fast, low confidence per test
-   /--------------\\
+1. **Unit Tests (The Base):** Test small, isolated pieces of code (like a single function or service method). Fast and cheap.
+2. **Integration Tests (The Middle):** Test how different parts of your system work together (e.g., Service + Database).
+3. **E2E Tests (The Top):** Test the entire application from the user's perspective. Slow and expensive, but high confidence.
+
+> [!TIP]
+> **Pro Tip:** Aim for high coverage in Unit Tests, but don't ignore E2E tests. A "green" unit test doesn't matter if your database connection is broken!
+
+## Introduction to Jest
+
+**Jest** is the standard testing framework for NestJS. It's fast, has great documentation, and includes everything you need (assertions, mocks, coverage reports).
+
+### Anatomy of a Test:
+\`\`\`ts
+describe('UsersService', () => {
+  it('should return a user by ID', () => {
+    // 1. Arrange (Set up the test)
+    // 2. Act (Call the method)
+    // 3. Assert (Check the result)
+  });
+});
 \`\`\`
 
-A healthy Nest app might have **70% unit, 25% integration, 5% E2E**. Unit tests run in milliseconds — you should run them on every save.
+> [!CAUTION]
+> **Common Pitfall:** Don't test "implementation details." Test **behavior**. If you change the internal logic of a function but the output stays the same, your tests shouldn't break.
 
-## Test-driven development
+## Lesson Outro
 
-Red → Green → Refactor:
-
-1. Write a failing test for the behaviour you want
-2. Write the minimum code to make it pass
-3. Refactor freely — the test catches regressions
-
-TDD isn't always right (exploratory UI work, prototypes), but for service logic it produces cleaner designs.
-
-## What to test
-
-- **Always**: business rules, edge cases, security boundaries, money-handling code
-- **Often**: controllers (status codes, validation), services (logic)
-- **Sometimes**: simple CRUD that's already covered by the framework
-- **Rarely**: library code you don't own, getters/setters
-
-## What good tests look like
-
-- One assertion per behaviour (multiple expects OK if they describe the same behaviour)
-- Names describe the *behaviour*, not the function: \`it('rejects login with wrong password')\`
-- AAA: Arrange, Act, Assert
-- Independent — order should not matter
-- Deterministic — no \`Math.random()\`, no real network
-
-## Assignment
-
-For your existing app, list every behaviour worth testing. Categorize each as unit / integration / E2E and target ratios for the pyramid.`;
+You've just taken the first step toward becoming a professional, reliable engineer! Next, we'll write our first **Unit Test** for a NestJS service.`;
 
 const m7l2 = `## Lesson Objective
 
@@ -3079,53 +3039,43 @@ Stand up GitHub Actions for your project: lint + unit + integration + E2E + cove
 
 const m8l1 = `## Lesson Objective
 
-Understand containers — what they are, why they exist, and how Docker's images, layers, and registries fit together.
+By the end of this lesson, you will:
 
-## The problem containers solve
+- Understand the concept of Containerization
+- Learn the difference between Images and Containers
+- Understand why Docker is essential for modern backend development
+- Run your first Docker container
 
-"Works on my machine" was the meme of the 2010s. Containers fix it by packaging your **app + its OS dependencies + its config** into one shippable artifact that runs identically on a laptop, CI, staging, and production.
+[video:9F6Cv_JHmrE]
 
-## Container vs VM
+## What is Docker?
 
-- A **VM** runs a full OS kernel — heavy, minutes to boot
-- A **container** shares the host kernel — lightweight, milliseconds to start
+Docker is a platform that allows you to package an application and all its dependencies into a single "container." 
 
-A typical server can run hundreds of containers but maybe a dozen VMs.
+### The "Works on my machine" Problem
+In the past, you might build an app that works on your Mac but breaks on your teammate's Windows machine or the Linux production server. Docker solves this by creating an isolated environment that is **identical everywhere**.
 
-## Core concepts
+## Core Concepts
 
-- **Image** — a read-only template (your built app)
-- **Container** — a running instance of an image
-- **Layer** — images are built in stacked layers; cached across builds
-- **Registry** — where images live (Docker Hub, GitHub Container Registry)
+1. **Docker Image:** A read-only template that contains the instructions for creating a container (like a recipe).
+2. **Docker Container:** A running instance of an image (like the actual meal).
+3. **Dockerfile:** A text file containing all the commands to build an image.
 
-## Essential commands
+> [!TIP]
+> **Pro Tip:** Think of a Docker Image as a **Snapshot** of your computer at a specific moment. You can share this snapshot with anyone, and they can run it exactly as you did.
 
-\`\`\`bash
-docker build -t my-api .
-docker run -p 3000:3000 my-api
-docker ps                       # running containers
-docker logs <id>                # tail logs
-docker exec -it <id> sh         # shell into a container
-docker image prune              # reclaim disk
-\`\`\`
+## Why use Docker with NestJS?
 
-## How layer caching works
+- **Isolation:** You can run different versions of Node.js for different projects without conflicts.
+- **Portability:** Ship your app to AWS, Google Cloud, or DigitalOcean with zero configuration changes.
+- **Consistency:** Dev, Staging, and Production environments are 100% identical.
 
-Each \`Dockerfile\` instruction creates a layer. Docker caches a layer if the instruction and inputs haven't changed. The right order is **least-changing → most-changing**:
+> [!CAUTION]
+> **Common Pitfall:** Don't store data *inside* a container. Containers are meant to be "ephemeral" (meaning they can be deleted and recreated at any time). Use **Volumes** for persistent data like databases.
 
-\`\`\`dockerfile
-COPY package*.json ./    # changes rarely
-RUN npm ci               # cached unless lockfile changes
-COPY . .                 # changes every commit
-\`\`\`
+## Lesson Outro
 
-Get this order wrong and every commit reinstalls dependencies.
-
-## Image size matters
-
-A 1.2GB image takes minutes to push and pull. Use slim base images (\`node:20-alpine\`), multi-stage builds, and \`.dockerignore\` to exclude \`node_modules\` and \`.git\`.
-
+You've just learned the technology that powers the modern cloud! Next, we'll write a **Dockerfile** for our NestJS application and build our very first custom image.
 ## Assignment
 
 Pull \`postgres:16\`, run it, connect with \`psql\`, then run \`docker logs\` and identify three log lines you understand. Write down what each one means.`;
@@ -3463,37 +3413,47 @@ Deploy your Nest app to a real domain with HTTPS, two replicas, a health check, 
 
 const m9l1 = `## Lesson Objective
 
-Plan the architecture of your capstone — service boundaries, data ownership, API contracts, and infrastructure — *before* writing code.
+By the end of this lesson, you will:
 
-## The capstone product
+- Understand the scope of the NestJS Mastery Capstone Project
+- Learn how to architect a multi-service application from scratch
+- Design a real-world e-commerce backend (NestCommerce)
+- Set up your production-ready project structure
 
-You'll build **NestCommerce**, a small but real e-commerce platform with:
+[video:jOytv6PQxN0]
 
-- Customer accounts and authentication
-- A product catalog
-- Orders and payment intent (mocked)
-- Email + push notifications
-- An admin dashboard
+## The Capstone: NestCommerce
 
-## Service decomposition
+It's time to put everything you've learned into practice! You will build **NestCommerce**, a production-grade e-commerce backend.
 
-Draw boundaries around **data ownership**, not technical layers:
+### Core Features:
+- **Modular Monolith or Microservices:** You choose the architecture.
+- **Full Authentication:** JWT with Refresh Tokens and RBAC (Admin/User).
+- **Product Management:** CRUD with image uploads (S3/Cloudinary).
+- **Order System:** Handling complex transactions and state management.
+- **Background Jobs:** Sending emails and generating invoices with BullMQ.
+- **Automated Testing:** 70%+ unit and integration test coverage.
 
-\`\`\`text
-api-gateway        ← public HTTP entry point
-auth-service       ← users, sessions, JWT
-catalog-service    ← products, inventory
-orders-service     ← orders, payment intents
-notifications      ← email + push (worker)
-\`\`\`
+## Planning the Architecture
 
-Each service has its own database. The gateway owns no data.
+Before writing a single line of code, we must plan.
 
-## API contract design
+### 1. Service Boundaries
+We'll split the app into logical modules:
+- \`AuthModule\`: Handing users and security.
+- \`CatalogModule\`: Products, Categories, and Inventory.
+- \`OrderModule\`: Cart management and checkout.
+- \`PaymentModule\`: Integration with Stripe (mocked).
 
-Write the public API *before* the code. For each endpoint, define: method, path, request DTO, response shape, error codes, auth requirements.
+### 2. The Data Model
+We'll use **PostgreSQL** with **TypeORM** for its reliability and strong relation support.
 
-Document it in OpenAPI from day one. Your frontend partner can build against the spec while you implement.
+> [!TIP]
+> **Pro Tip:** In a real project, always draw your **Entity Relationship Diagram (ERD)** first. It will save you hours of refactoring later.
+
+## Lesson Outro
+
+This is where you separate yourself from the "tutorial-followers" and become a real **Software Engineer**. Let's start by initializing the project and setting up our core modules.
 
 ## Data model
 
@@ -3760,7 +3720,7 @@ export const modules: Module[] = [
       channel: "Net Ninja / freeCodeCamp",
       query: "NestJS crash course tutorial for beginners",
     },
-    overview: `## From the book — Chapter 1: Introduction
+    overview: `## Module 1: Introduction
 
 NestJS is a progressive Node.js framework built on top of Express. It combines OOP, Functional Programming, and Functional Reactive Programming, and uses TypeScript to enforce type safety at compile time.
 
@@ -3799,7 +3759,7 @@ Generators include class, controller, decorator, exception, filter, gateway, gua
       channel: "Marius Espejo",
       query: "NestJS REST API CRUD tutorial DTO swagger",
     },
-    overview: `## From the book — REST APIs in Nest
+    overview: `## Module: REST APIs in Nest
 
 REST stands for Representative State Transfer and uses JSON as a transfer format. A REST request in Nest flows: client → routing → middleware → controller → service → database via ORM → response.
 
@@ -3832,7 +3792,7 @@ The \`@nestjs/swagger\` module provides decorators that describe inputs, outputs
       channel: "Marius Espejo",
       query: "NestJS authentication JWT passport tutorial",
     },
-    overview: `## From the book — Chapter 3: Authentication
+    overview: `## Module 3: Authentication
 
 Authentication ensures users only access what they have permission to. **Passport** is the chosen Node middleware; with Nest it commonly uses a **JWT strategy**.
 
@@ -3873,7 +3833,7 @@ Guards implement \`CanActivate\` and decide whether a request reaches its handle
       channel: "freeCodeCamp",
       query: "NestJS TypeORM PostgreSQL tutorial",
     },
-    overview: `## From the book — Chapter 5: ORM
+    overview: `## Module 5: ORM
 
 An ORM maps in-memory objects (\`User\`, \`Comment\`) to relational tables. The book covers three:
 
@@ -3897,7 +3857,7 @@ An ORM maps in-memory objects (\`User\`, \`Comment\`) to relational tables. The 
       channel: "Marius Espejo",
       query: "NestJS microservices tutorial TCP Redis RabbitMQ",
     },
-    overview: `## From the book — Microservices in Nest
+    overview: `## Module: Microservices in Nest
 
 In Nest, **microservices are applications that use a transport layer other than HTTP** — TCP, Redis pub/sub, or others (any custom transport via \`CustomTransportStrategy\`). They allow teams to work on their own service inside a global project and ship changes independently — the foundation of CI/CD at scale.
 
@@ -3944,7 +3904,7 @@ That separation is what enables background jobs, caching, and queues without lea
       channel: "Marius Espejo",
       query: "NestJS testing tutorial jest supertest unit e2e",
     },
-    overview: `## From the book — Testing
+    overview: `## Module: Testing
 
 Two kinds of tests:
 
@@ -3995,7 +3955,7 @@ This module turns containers into a full production story: multi-stage Dockerfil
     },
     overview: `## Capstone — apply everything
 
-In the capstone you'll combine every chapter into one production-grade platform: Nest core architecture, REST APIs, JWT auth, an ORM-backed database, microservices over TCP and RabbitMQ, queues + caching, automated tests, and Docker deployment.
+In the capstone you'll combine every module into one production-grade platform: Nest core architecture, REST APIs, JWT auth, an ORM-backed database, microservices over TCP and RabbitMQ, queues + caching, automated tests, and Docker deployment.
 
 Deliverables: architecture doc, core services, microservice integration, CI/CD with full test coverage, and a documented production deployment.`,
     lessons: [
@@ -4007,6 +3967,7 @@ Deliverables: architecture doc, core services, microservice integration, CI/CD w
   },
 ];
 
+export const allLessons = modules.flatMap((m) =>
   m.lessons.map((l) => ({ ...l, moduleId: m.id, moduleTitle: m.title })),
 );
 
@@ -4015,6 +3976,7 @@ export function findLesson(moduleId: string, lessonId: string) {
   if (!mod) return null;
   const idx = mod.lessons.findIndex((l) => l.id === lessonId);
   if (idx === -1) return null;
+  
   return {
     module: mod,
     lesson: mod.lessons[idx],
@@ -4034,3 +3996,4 @@ export function findLesson(moduleId: string, lessonId: string) {
 }
 
 export const totalLessons = allLessons.length;
+

@@ -86,6 +86,13 @@ export function LessonContent({ source }: { source: string }) {
       continue;
     }
 
+    if (line.startsWith("[video:")) {
+      const id = line.slice(7, -1).trim();
+      blocks.push({ type: "video" as any, value: id });
+      i++;
+      continue;
+    }
+
     if (line.trim() === "") {
       i++;
       continue;
@@ -97,6 +104,21 @@ export function LessonContent({ source }: { source: string }) {
   return (
     <div className="prose-lesson">
       {blocks.map((b, idx) => {
+        if ((b as any).type === "video")
+          return (
+            <div key={idx} className="my-8 aspect-video overflow-hidden rounded-xl border border-border shadow-lg">
+              <iframe
+                width="100%"
+                height="100%"
+                src={`https://www.youtube.com/embed/${b.value}`}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          );
+
         if (b.type === "h2") return <h2 key={idx}>{b.value}</h2>;
         if (b.type === "h3") return <h3 key={idx}>{b.value}</h3>;
         if (b.type === "hr") return <hr key={idx} />;
