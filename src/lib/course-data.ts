@@ -1,29 +1,16 @@
-export type QuizQuestion = {
-  id: string;
-  question: string;
-  options: string[];
-  correctAnswer: number; // index of the correct option
-  explanation: string;
-};
-
-export type Quiz = {
+export type GuidedProjectStep = {
   id: string;
   title: string;
-  questions: QuizQuestion[];
+  content: string; // Markdown
 };
 
-export type Lesson = {
+export type GuidedProject = {
   id: string;
   title: string;
-  duration: string;
-  content: string;
-  quizzes?: Quiz[];
-};
-
-export type ModuleVideo = {
-  title: string;
-  channel: string;
-  query: string; // YouTube search query — used to build watch link
+  description: string;
+  objective: string;
+  steps: GuidedProjectStep[];
+  githubUrl?: string;
 };
 
 export type Module = {
@@ -36,6 +23,7 @@ export type Module = {
   /** A curated YouTube tutorial that explains the module. */
   video: ModuleVideo;
   lessons: Lesson[];
+  project?: GuidedProject;
 };
 
 // ---------- MODULE 1 — Full instructional content ----------
@@ -3852,6 +3840,39 @@ Generators include class, controller, decorator, exception, filter, gateway, gua
       { id: "typescript", title: "TypeScript for Professional Backend Engineers", duration: "25 min", content: m1l4 },
       { id: "lifecycle", title: "The Nest.js Request Lifecycle", duration: "35 min", content: m1l5 },
     ],
+    project: {
+      id: "m1-project",
+      title: "Developer Portfolio API",
+      objective: "Build a structured, modular Nest.js API to serve your professional profile data.",
+      description: "In this project, you will apply everything from Module 1. You'll create a new Nest application, generate a dedicated Profile module, and use controllers and services to serve your personal developer information.",
+      steps: [
+        {
+          id: "step1",
+          title: "Project Initialization",
+          content: "Use the Nest CLI to create a new project named `dev-profile-api`. \n\n```bash\nnest new dev-profile-api\n```\n\nClean up the default `app.controller.ts` and `app.service.ts` to start fresh."
+        },
+        {
+          id: "step2",
+          title: "Generate the Profile Module",
+          content: "Create a new module, controller, and service for the profile feature.\n\n```bash\nnest g mo profile\nnest g co profile\nnest g s profile\n```"
+        },
+        {
+          id: "step3",
+          title: "Define the Profile Interface",
+          content: "Create a file `profile.interface.ts` and define what a professional profile looks like.\n\n```ts\nexport interface Profile {\n  name: string;\n  bio: string;\n  skills: string[];\n  social: { platform: string; url: string }[];\n}\n```"
+        },
+        {
+          id: "step4",
+          title: "Implement the Service",
+          content: "In `profile.service.ts`, implement a method `getProfile()` that returns your profile data. Use the interface you defined."
+        },
+        {
+          id: "step5",
+          title: "Expose via Controller",
+          content: "Inject the `ProfileService` into the `ProfileController` and create a `GET` endpoint at `/profile` that returns the data."
+        }
+      ]
+    },
   },
   {
     id: "rest-apis",
@@ -3885,6 +3906,34 @@ The \`@nestjs/swagger\` module provides decorators that describe inputs, outputs
       { id: "pagination", title: "Pagination, Filtering & Search", duration: "35 min", content: m2l4 },
       { id: "logging", title: "Logging & Monitoring", duration: "20 min", content: m2l5 },
     ],
+    project: {
+      id: "m2-project",
+      title: "Task Management API",
+      objective: "Create a production-grade CRUD API with validation and documentation.",
+      description: "Apply your REST API knowledge by building a Task Management system. You'll handle complex data, implement strict validation, and document everything using Swagger.",
+      steps: [
+        {
+          id: "step1",
+          title: "CRUD Foundation",
+          content: "Generate a `Tasks` resource using the Nest CLI. Implement `GET`, `POST`, `PATCH`, and `DELETE` endpoints for tasks."
+        },
+        {
+          id: "step2",
+          title: "Data Validation (DTOs)",
+          content: "Create `CreateTaskDto` and `UpdateTaskDto`. Use `class-validator` and `class-transformer` to ensure only valid data enters your system."
+        },
+        {
+          id: "step3",
+          title: "Advanced Queries",
+          content: "Update your `GET /tasks` endpoint to support filtering by task status (OPEN, IN_PROGRESS, DONE) and searching by keyword."
+        },
+        {
+          id: "step4",
+          title: "Swagger Integration",
+          content: "Add Swagger decorators to your DTOs and Controller. Ensure all endpoints are documented with correct status codes and descriptions."
+        }
+      ]
+    },
   },
   {
     id: "auth-security",
@@ -3926,6 +3975,34 @@ Guards implement \`CanActivate\` and decide whether a request reaches its handle
       { id: "passwords", title: "Password Security & Encryption", duration: "20 min", content: m3l3 },
       { id: "api-security", title: "API Security Best Practices", duration: "30 min", content: m3l4 },
     ],
+    project: {
+      id: "m3-project",
+      title: "Secure Auth Gateway",
+      objective: "Implement a robust security layer for your applications.",
+      description: "Secure your Task Management API using professional authentication and authorization patterns. You'll handle JWTs, hashing, and role-based access.",
+      steps: [
+        {
+          id: "step1",
+          title: "Authentication Module",
+          content: "Set up an `AuthModule` using `@nestjs/passport` and `@nestjs/jwt`. Implement sign-up and sign-in functionality."
+        },
+        {
+          id: "step2",
+          title: "JWT Guards",
+          content: "Protect your task endpoints using a `JwtAuthGuard`. Ensure that only authenticated users can access their tasks."
+        },
+        {
+          id: "step3",
+          title: "Role-Based Access",
+          content: "Introduce roles (USER, ADMIN). Create a `RolesGuard` and use it to restrict the `DELETE` endpoint to ADMIN users only."
+        },
+        {
+          id: "step4",
+          title: "Security Hardening",
+          content: "Implement hashing for passwords using `bcrypt` and add security headers using `helmet`."
+        }
+      ]
+    },
   },
   {
     id: "database",
@@ -3950,6 +4027,34 @@ An ORM maps in-memory objects (\`User\`, \`Comment\`) to relational tables. The 
       { id: "orm-patterns", title: "Advanced ORM Patterns", duration: "35 min", content: m4l3 },
       { id: "redis-cache", title: "Caching with Redis", duration: "25 min", content: m4l4 },
     ],
+    project: {
+      id: "m4-project",
+      title: "Relational Data Mastery",
+      objective: "Design and implement a scalable database layer.",
+      description: "Move from in-memory arrays to a real PostgreSQL database. You'll learn how to model relationships, manage migrations, and optimize queries.",
+      steps: [
+        {
+          id: "step1",
+          title: "PostgreSQL & TypeORM Setup",
+          content: "Configure your NestJS app to connect to a PostgreSQL database using TypeORM. Use environment variables for credentials."
+        },
+        {
+          id: "step2",
+          title: "Entity Modeling",
+          content: "Convert your Task and User interfaces into TypeORM entities. Establish a One-to-Many relationship between Users and Tasks."
+        },
+        {
+          id: "step3",
+          title: "Repository Pattern",
+          content: "Refactor your services to use TypeORM repositories. Implement transactions for critical operations."
+        },
+        {
+          id: "step4",
+          title: "Redis Caching",
+          content: "Implement a caching layer for the `GET /tasks` endpoint using Redis to improve performance under load."
+        }
+      ]
+    },
   },
   {
     id: "microservices",
@@ -3975,6 +4080,34 @@ For real-time fan-out (chat, dashboards), clients subscribe to channels; the ser
       { id: "api-gateway", title: "API Gateway Pattern", duration: "40 min", content: m5l4 },
       { id: "rabbitmq", title: "RabbitMQ & Message Queues", duration: "45 min", content: m5l5 },
     ],
+    project: {
+      id: "m5-project",
+      title: "Distributed Order System",
+      objective: "Build a multi-service system communicating over TCP and RabbitMQ.",
+      description: "Scale your architecture by splitting functionality into independent services. You'll build a Gateway, an Order service, and a Notification service that talk to each other professionally.",
+      steps: [
+        {
+          id: "step1",
+          title: "Microservice Extraction",
+          content: "Create a new Nest application for the `Order Service`. Use the Nest CLI to generate it as a microservice using TCP transport."
+        },
+        {
+          id: "step2",
+          title: "API Gateway Pattern",
+          content: "Implement an API Gateway that acts as the single entry point. Use `ClientProxyFactory` to forward requests to the Order Service."
+        },
+        {
+          id: "step3",
+          title: "Asynchronous Messaging",
+          content: "Set up RabbitMQ. When an order is placed, emit an `order_placed` event that the Notification Service listens to."
+        },
+        {
+          id: "step4",
+          title: "Shared Libraries",
+          content: "Create a shared library or directory for DTOs and interfaces to ensure type safety across your microservices."
+        }
+      ]
+    },
   },
   {
     id: "performance",
@@ -3997,6 +4130,34 @@ That separation is what enables background jobs, caching, and queues without lea
       { id: "redis-advanced", title: "Advanced Redis Strategies", duration: "30 min", content: m6l3 },
       { id: "optimization", title: "Performance Optimization", duration: "40 min", content: m6l4 },
     ],
+    project: {
+      id: "m6-project",
+      title: "High-Performance Notifications",
+      objective: "Handle massive traffic using background jobs and advanced caching.",
+      description: "Optimize your system to handle thousands of concurrent notifications without blocking the main thread. You'll master BullMQ and advanced Redis patterns.",
+      steps: [
+        {
+          id: "step1",
+          title: "Background Processing",
+          content: "Integrate BullMQ into your Notification Service. Offload email and SMS sending to background workers."
+        },
+        {
+          id: "step2",
+          title: "Redis Streams/Queues",
+          content: "Use Redis to manage job priority and retries. Implement a 'Dead Letter Queue' for failed notification attempts."
+        },
+        {
+          id: "step3",
+          title: "Advanced Caching",
+          content: "Implement the 'Cache-Aside' pattern for user preferences. Use Redis hashes to store complex configuration data efficiently."
+        },
+        {
+          id: "step4",
+          title: "Load Testing",
+          content: "Use a tool like `autocannon` to load test your notification endpoint and observe how the queue handles the pressure."
+        }
+      ]
+    },
   },
   {
     id: "testing",
@@ -4023,6 +4184,34 @@ Testing matters regardless of language or framework. Large engineering organizat
       { id: "e2e", title: "End-to-End Testing with Supertest", duration: "45 min", content: m7l4 },
       { id: "cicd", title: "CI/CD Testing Pipelines", duration: "30 min", content: m7l5 },
     ],
+    project: {
+      id: "m7-project",
+      title: "The Bulletproof API",
+      objective: "Achieve 90%+ test coverage with unit, integration, and E2E tests.",
+      description: "A professional API is a tested API. You'll build a comprehensive test suite that ensures your system remains stable as it grows.",
+      steps: [
+        {
+          id: "step1",
+          title: "Unit Testing Services",
+          content: "Write unit tests for your `OrdersService` using Jest. Use `jest.mock()` to isolate the service from its dependencies."
+        },
+        {
+          id: "step2",
+          title: "Integration Testing Repositories",
+          content: "Set up a test database (using Docker or SQLite). Write integration tests to verify your TypeORM queries and transactions."
+        },
+        {
+          id: "step3",
+          title: "E2E Testing Flows",
+          content: "Use Supertest to write End-to-End tests for the 'Place Order' flow. Verify the entire journey from request to database to response."
+        },
+        {
+          id: "step4",
+          title: "Coverage Reporting",
+          content: "Configure Jest to generate coverage reports. Identify 'dark spots' in your code and add tests to cover them."
+        }
+      ]
+    },
   },
   {
     id: "docker",
@@ -4046,6 +4235,34 @@ This module turns containers into a full production story: multi-stage Dockerfil
       { id: "secrets", title: "Environment Variables & Secrets Management", duration: "20 min", content: m8l4 },
       { id: "deploy", title: "Deploying to Production", duration: "50 min", content: m8l5 },
     ],
+    project: {
+      id: "m8-project",
+      title: "Containerized Cloud Stack",
+      objective: "Orchestrate your entire system using Docker and prepare for cloud deployment.",
+      description: "Move your system from 'it works on my machine' to 'it works everywhere'. You'll master multi-stage builds and Docker Compose.",
+      steps: [
+        {
+          id: "step1",
+          title: "Multi-Stage Dockerfiles",
+          content: "Create optimized Dockerfiles for each of your microservices using multi-stage builds to keep production images small."
+        },
+        {
+          id: "step2",
+          title: "Orchestration with Compose",
+          content: "Write a `docker-compose.yml` file that starts your Gateway, Services, Postgres, Redis, and RabbitMQ with a single command."
+        },
+        {
+          id: "step3",
+          title: "Networking & Volumes",
+          content: "Configure Docker networking for service discovery and use volumes to ensure database data persists after containers stop."
+        },
+        {
+          id: "step4",
+          title: "Production Hardening",
+          content: "Implement environment variable validation and health checks in your Docker configuration."
+        }
+      ]
+    },
   },
   {
     id: "capstone",
@@ -4068,6 +4285,34 @@ Deliverables: architecture doc, core services, microservice integration, CI/CD w
       { id: "integration", title: "Integrating Microservices", duration: "Workshop", content: m9l3 },
       { id: "deploy", title: "Testing & Production Deployment", duration: "Workshop", content: m9l4 },
     ],
+    project: {
+      id: "m9-project",
+      title: "The Ultimate Capstone",
+      objective: "Apply every single skill to build a production-ready enterprise platform.",
+      description: "This is it. You'll build the 'NestCommerce' platform—a resilient, observable, and scalable microservices system ready for the real world.",
+      steps: [
+        {
+          id: "step1",
+          title: "System Architecture",
+          content: "Design the full system diagram. Plan your service boundaries, data flow, and communication protocols (Synchronous vs Asynchronous)."
+        },
+        {
+          id: "step2",
+          title: "Core Implementation",
+          content: "Build the Auth, Catalog, and Orders services. Implement advanced patterns like the 'Outbox Pattern' for reliable event delivery."
+        },
+        {
+          id: "step3",
+          title: "Resilience & Observability",
+          content: "Add Circuit Breakers, Retries, and Timeouts. Integrate OpenTelemetry for distributed tracing across your services."
+        },
+        {
+          id: "step4",
+          title: "Deployment & Scale",
+          content: "Deploy the full stack. Perform a final load test and verify that your system can handle the target traffic while maintaining performance."
+        }
+      ]
+    },
   },
 ];
 
@@ -4081,21 +4326,42 @@ export function findLesson(moduleId: string, lessonId: string) {
   const idx = mod.lessons.findIndex((l) => l.id === lessonId);
   if (idx === -1) return null;
   
+  const isLastLesson = idx === mod.lessons.length - 1;
+
   return {
     module: mod,
     lesson: mod.lessons[idx],
     prev: idx > 0 ? { moduleId, lessonId: mod.lessons[idx - 1].id } : null,
+    next: !isLastLesson
+      ? { moduleId, lessonId: mod.lessons[idx + 1].id }
+      : mod.project
+      ? { moduleId, type: "project" as const }
+      : (() => {
+          const mi = modules.findIndex((m) => m.id === moduleId);
+          if (mi < modules.length - 1) {
+            const nm = modules[mi + 1];
+            return { moduleId: nm.id, lessonId: nm.lessons[0].id };
+          }
+          return null;
+        })(),
+  };
+}
+
+export function findProject(moduleId: string) {
+  const mod = modules.find((m) => m.id === moduleId);
+  if (!mod || !mod.project) return null;
+
+  const mi = modules.findIndex((m) => m.id === moduleId);
+  const prevLessonId = mod.lessons[mod.lessons.length - 1]?.id;
+
+  return {
+    module: mod,
+    project: mod.project,
+    prev: prevLessonId ? { moduleId, lessonId: prevLessonId } : null,
     next:
-      idx < mod.lessons.length - 1
-        ? { moduleId, lessonId: mod.lessons[idx + 1].id }
-        : (() => {
-            const mi = modules.findIndex((m) => m.id === moduleId);
-            if (mi < modules.length - 1) {
-              const nm = modules[mi + 1];
-              return { moduleId: nm.id, lessonId: nm.lessons[0].id };
-            }
-            return null;
-          })(),
+      mi < modules.length - 1
+        ? { moduleId: modules[mi + 1].id, lessonId: modules[mi + 1].lessons[0].id }
+        : null,
   };
 }
 

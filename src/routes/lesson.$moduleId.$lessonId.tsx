@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ProjectSidebar } from "@/components/project-sidebar";
 import React from "react";
 import { cn } from "@/lib/utils";
+import { FolderCode } from "lucide-react";
 
 export const Route = createFileRoute("/lesson/$moduleId/$lessonId")({
   component: LessonPage,
@@ -47,7 +48,11 @@ function LessonPage() {
     }
     progress.toggle(lesson.id, !isDone);
     if (!isDone && next) {
-      setTimeout(() => navigate({ to: "/lesson/$moduleId/$lessonId", params: next }), 250);
+      if ("type" in next && next.type === "project") {
+        setTimeout(() => navigate({ to: "/project/$moduleId", params: { moduleId: next.moduleId } }), 250);
+      } else {
+        setTimeout(() => navigate({ to: "/lesson/$moduleId/$lessonId", params: next as any }), 250);
+      }
     }
   };
 
@@ -100,6 +105,18 @@ function LessonPage() {
                     </li>
                   );
                 })}
+                {module.project && (
+                   <li className="mt-4 pt-4 border-t border-border/40">
+                    <Link
+                      to="/project/$moduleId"
+                      params={{ moduleId }}
+                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-primary font-bold hover:bg-primary/5 transition-all"
+                    >
+                      <FolderCode className="h-4 w-4" />
+                      Module Project
+                    </Link>
+                   </li>
+                )}
               </ul>
             </div>
           </aside>
@@ -163,11 +180,19 @@ function LessonPage() {
                 )}
               </Button>
               {next ? (
-                <Button asChild className="h-10 px-6 font-semibold shadow-lg shadow-primary/10">
-                  <Link to="/lesson/$moduleId/$lessonId" params={next}>
-                    Next Lesson <ChevronRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                "type" in next && next.type === "project" ? (
+                  <Button asChild className="h-10 px-6 font-semibold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
+                    <Link to="/project/$moduleId" params={{ moduleId: next.moduleId }}>
+                      Module Project <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button asChild className="h-10 px-6 font-semibold shadow-lg shadow-primary/10">
+                    <Link to="/lesson/$moduleId/$lessonId" params={next as any}>
+                      Next Lesson <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                )
               ) : (
                 <Button asChild variant="outline" className="h-10 px-6 font-semibold">
                   <Link to="/course">Finish Course</Link>

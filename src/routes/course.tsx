@@ -5,7 +5,7 @@ import { useProgress } from "@/lib/progress";
 import { useAuth } from "@/lib/auth";
 import { Progress } from "@/components/ui/progress";
 import { LessonContent } from "@/components/lesson-content";
-import { Check, Lock, PlayCircle, Youtube } from "lucide-react";
+import { Check, Lock, PlayCircle, Youtube, FolderCode } from "lucide-react";
 import * as Icons from "lucide-react";
 
 export const Route = createFileRoute("/course")({
@@ -131,6 +131,26 @@ function CoursePage() {
                       </li>
                     );
                   })}
+                  {m.project && (
+                    <li className="bg-primary/5 border-t border-primary/10">
+                      <Link
+                        to="/project/$moduleId"
+                        params={{ moduleId: m.id }}
+                        className="flex items-center gap-4 px-4 py-4 transition-colors hover:bg-primary/10"
+                      >
+                        <div className="grid h-7 w-7 place-items-center rounded-md bg-primary text-primary-foreground shadow-sm">
+                          <FolderCode className="h-4 w-4" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-primary">Guided Project: {m.project.title}</p>
+                          <p className="text-[10px] uppercase tracking-wider text-primary/70 font-mono">Module Practical Capstone</p>
+                        </div>
+                        <div className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase">
+                          Practice
+                        </div>
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               </section>
             );
