@@ -1768,6 +1768,16 @@ export class User {
 > [!CAUTION]
 > **Common Pitfall:** Avoid "N+1" query problems by using \`relations\` or \`joins\` properly. Loading 100 users and then doing 100 separate queries for their posts will kill your database performance.
 
+## Quick Knowledge Check
+
+- When would you choose PostgreSQL over MongoDB, and vice versa?
+- What does normalization buy you, and when is denormalization worth it?
+- What is the N+1 query problem, and how do ORMs help you avoid it?
+
+## Assignment
+
+Sketch a normalized schema for a blog (users, posts, comments, tags). Identify each primary key, foreign key, and index you would create, and justify one place where you would intentionally denormalize.
+
 ## Lesson Outro
 
 You now understand the storage engine of the internet! Next, we'll get our hands dirty and connect a **PostgreSQL** database to our NestJS app using **TypeORM**.`;
