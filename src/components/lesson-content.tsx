@@ -3,6 +3,7 @@ import { Fragment } from "react";
 type Block =
   | { type: "p" | "h2" | "h3" | "ul" | "ol"; value: string }
   | { type: "code"; value: string; lang?: string }
+  | { type: "video"; value: string }
   | { type: "table"; header: string[]; rows: string[][] }
   | { type: "hr" };
 
