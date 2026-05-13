@@ -105,7 +105,7 @@ export function LessonContent({ source }: { source: string }) {
   return (
     <div className="prose-lesson">
       {blocks.map((b, idx) => {
-        if ((b as any).type === "video")
+        if (b.type === "video")
           return (
             <div key={idx} className="my-8 aspect-video overflow-hidden rounded-xl border border-border shadow-lg">
               <iframe
