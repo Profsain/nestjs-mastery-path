@@ -2739,6 +2739,16 @@ describe('UsersService', () => {
 > [!CAUTION]
 > **Common Pitfall:** Don't test "implementation details." Test **behavior**. If you change the internal logic of a function but the output stays the same, your tests shouldn't break.
 
+## Quick Knowledge Check
+
+- What is the difference between unit, integration, and end-to-end tests?
+- Why is the testing pyramid shaped the way it is?
+- When does a high coverage number stop telling you anything useful?
+
+## Assignment
+
+For one feature in your app, list the unit, integration, and e2e tests you would write. Mark which layer each one belongs to and what bug it would catch.
+
 ## Lesson Outro
 
 You've just taken the first step toward becoming a professional, reliable engineer! Next, we'll write our first **Unit Test** for a NestJS service.`;
