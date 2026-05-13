@@ -102,6 +102,8 @@ function LessonPage() {
             <Clock className="h-3.5 w-3.5" /> {lesson.duration}
           </p>
 
+          <LessonChecklist content={lesson.content} />
+
           <div className="mt-8">
             <LessonContent source={lesson.content} />
           </div>
