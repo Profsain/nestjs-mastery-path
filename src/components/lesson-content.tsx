@@ -89,7 +89,7 @@ export function LessonContent({ source }: { source: string }) {
 
     if (line.startsWith("[video:")) {
       const id = line.slice(7, -1).trim();
-      blocks.push({ type: "video" as any, value: id });
+      blocks.push({ type: "video", value: id });
       i++;
       continue;
     }
