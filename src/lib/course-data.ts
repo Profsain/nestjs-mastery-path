@@ -1481,6 +1481,16 @@ const hashedPassword = await bcrypt.hash(password, 10);
 > [!CAUTION]
 > **Common Pitfall:** Don't use a salt rounds value higher than 12 unless you have a very specific reason. Higher values make hashing exponentially slower, which can lead to DoS attacks on your login endpoint.
 
+## Quick Knowledge Check
+
+- What does a JWT actually contain, and why is the signature critical?
+- Where should access tokens vs refresh tokens be stored on the client?
+- Why is \`bcrypt\`/\`argon2\` preferred over a plain SHA-256 of the password?
+
+## Assignment
+
+Add JWT auth to your API: signup + login endpoints, an \`AuthGuard\`, a protected \`/me\` route, and an integration test that proves a tampered token is rejected.
+
 ## Lesson Outro
 
 Security is a journey, not a destination. You now have a solid foundation for securing your NestJS APIs. Next, we'll look at **Role-Based Access Control (RBAC)** to manage *what* authenticated users can do.`;
@@ -1757,6 +1767,16 @@ export class User {
 
 > [!CAUTION]
 > **Common Pitfall:** Avoid "N+1" query problems by using \`relations\` or \`joins\` properly. Loading 100 users and then doing 100 separate queries for their posts will kill your database performance.
+
+## Quick Knowledge Check
+
+- When would you choose PostgreSQL over MongoDB, and vice versa?
+- What does normalization buy you, and when is denormalization worth it?
+- What is the N+1 query problem, and how do ORMs help you avoid it?
+
+## Assignment
+
+Sketch a normalized schema for a blog (users, posts, comments, tags). Identify each primary key, foreign key, and index you would create, and justify one place where you would intentionally denormalize.
 
 ## Lesson Outro
 
@@ -2057,6 +2077,16 @@ The API Gateway is the single entry point for all clients. It handles:
 
 > [!CAUTION]
 > **Common Pitfall:** Don't turn your API Gateway into a "Monolithic Gateway" by putting business logic in it. It should stay thin and only handle cross-cutting concerns.
+
+## Quick Knowledge Check
+
+- What is the single biggest tradeoff between a monolith and a microservices architecture?
+- Name two synchronous and two asynchronous communication patterns between services.
+- What problems does an API Gateway solve, and what problems can it create?
+
+## Assignment
+
+Take an existing monolith feature in your project and draw a diagram showing how you would extract it into a microservice. Mark every network boundary, the transport you would choose, and the failure mode you would design for.
 
 ## Lesson Outro
 
@@ -2708,6 +2738,16 @@ describe('UsersService', () => {
 
 > [!CAUTION]
 > **Common Pitfall:** Don't test "implementation details." Test **behavior**. If you change the internal logic of a function but the output stays the same, your tests shouldn't break.
+
+## Quick Knowledge Check
+
+- What is the difference between unit, integration, and end-to-end tests?
+- Why is the testing pyramid shaped the way it is?
+- When does a high coverage number stop telling you anything useful?
+
+## Assignment
+
+For one feature in your app, list the unit, integration, and e2e tests you would write. Mark which layer each one belongs to and what bug it would catch.
 
 ## Lesson Outro
 

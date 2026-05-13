@@ -3,6 +3,7 @@ import { Fragment } from "react";
 type Block =
   | { type: "p" | "h2" | "h3" | "ul" | "ol"; value: string }
   | { type: "code"; value: string; lang?: string }
+  | { type: "video"; value: string }
   | { type: "table"; header: string[]; rows: string[][] }
   | { type: "hr" };
 
@@ -88,7 +89,7 @@ export function LessonContent({ source }: { source: string }) {
 
     if (line.startsWith("[video:")) {
       const id = line.slice(7, -1).trim();
-      blocks.push({ type: "video" as any, value: id });
+      blocks.push({ type: "video", value: id });
       i++;
       continue;
     }
@@ -104,7 +105,7 @@ export function LessonContent({ source }: { source: string }) {
   return (
     <div className="prose-lesson">
       {blocks.map((b, idx) => {
-        if ((b as any).type === "video")
+        if (b.type === "video")
           return (
             <div key={idx} className="my-8 aspect-video overflow-hidden rounded-xl border border-border shadow-lg">
               <iframe
