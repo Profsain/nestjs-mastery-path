@@ -13,6 +13,35 @@ export type GuidedProject = {
   githubUrl?: string;
 };
 
+export type QuizQuestion = {
+  id?: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+};
+
+export type Quiz = {
+  id: string;
+  title: string;
+  questions: QuizQuestion[];
+};
+
+export type Lesson = {
+  id: string;
+  title: string;
+  duration?: string;
+  content: string;
+  quizzes?: Quiz[];
+};
+
+export type ModuleVideo = {
+  title: string;
+  youtubeId?: string;
+  channel?: string;
+  query?: string;
+};
+
 export type Module = {
   id: string;
   title: string;

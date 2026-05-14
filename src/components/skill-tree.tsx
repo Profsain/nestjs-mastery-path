@@ -125,7 +125,7 @@ export function SkillTree() {
                       </>
                     ) : (
                       <Badge
-                        variant="ghost"
+                        variant="outline"
                         className="text-[10px] py-0 px-2 h-5 border border-dashed"
                       >
                         Complete previous module to unlock
