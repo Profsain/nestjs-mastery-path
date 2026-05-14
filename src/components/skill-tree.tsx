@@ -71,10 +71,9 @@ export function SkillTree() {
                 )}
 
                 <Link
-                  to={isUnlocked ? "/lesson/$moduleId/$lessonId" : "#"}
-                  params={
-                    isUnlocked ? { moduleId: module.id, lessonId: module.lessons[0].id } : undefined
-                  }
+                  to="/lesson/$moduleId/$lessonId"
+                  params={{ moduleId: module.id, lessonId: module.lessons[0].id }}
+                  disabled={!isUnlocked}
                   className={cn(
                     "relative flex flex-col items-center p-8 rounded-3xl border-4 transition-all duration-300 w-full max-w-md group-hover:scale-[1.02]",
                     isUnlocked
