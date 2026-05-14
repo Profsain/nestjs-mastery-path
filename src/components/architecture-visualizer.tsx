@@ -24,7 +24,10 @@ interface ArchitectureVisualizerProps {
   title?: string;
 }
 
-export function ArchitectureVisualizer({ definition, title = "System Blueprint" }: ArchitectureVisualizerProps) {
+export function ArchitectureVisualizer({
+  definition,
+  title = "System Blueprint",
+}: ArchitectureVisualizerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartId = `mermaid-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -52,8 +55,8 @@ export function ArchitectureVisualizer({ definition, title = "System Blueprint" 
         </Badge>
       </CardHeader>
       <CardContent className="pt-8 flex justify-center overflow-x-auto">
-        <div 
-          ref={containerRef} 
+        <div
+          ref={containerRef}
           className="mermaid-container animate-in fade-in zoom-in duration-500"
         />
       </CardContent>

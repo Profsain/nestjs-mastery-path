@@ -12,7 +12,8 @@ import { modules, allLessons } from "../src/lib/course-data";
 type Issue = { moduleId: string; lessonId: string; missing: string[] };
 
 const SUMMARY_RE = /^##\s+(Lesson Objective|Lesson Introduction|Lesson Outro)\b/m;
-const QUIZ_RE = /^##\s+(Assignment|Practical Exercise|Quick Knowledge Check|Exercise|Final assignment)\b/m;
+const QUIZ_RE =
+  /^##\s+(Assignment|Practical Exercise|Quick Knowledge Check|Exercise|Final assignment)\b/m;
 
 const issues: Issue[] = [];
 let totalSections = 0;

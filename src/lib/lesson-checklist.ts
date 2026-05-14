@@ -10,7 +10,8 @@ export type ChecklistItem = {
 };
 
 const SUMMARY_RE = /^##\s+(Lesson Objective|Lesson Introduction|Lesson Outro)\b/m;
-const QUIZ_RE = /^##\s+(Assignment|Practical Exercise|Quick Knowledge Check|Exercise|Final assignment)\b/m;
+const QUIZ_RE =
+  /^##\s+(Assignment|Practical Exercise|Quick Knowledge Check|Exercise|Final assignment)\b/m;
 
 export function buildLessonChecklist(content: string): ChecklistItem[] {
   const headings = content.match(/^##\s+.+/gm) ?? [];

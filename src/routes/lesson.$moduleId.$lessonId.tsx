@@ -31,7 +31,9 @@ function LessonPage() {
         <SiteHeader />
         <div className="container mx-auto px-4 py-20 text-center">
           <p className="text-muted-foreground">Lesson not found.</p>
-          <Button asChild className="mt-4"><Link to="/course">Back to curriculum</Link></Button>
+          <Button asChild className="mt-4">
+            <Link to="/course">Back to curriculum</Link>
+          </Button>
         </div>
       </div>
     );
@@ -49,7 +51,10 @@ function LessonPage() {
     progress.toggle(lesson.id, !isDone);
     if (!isDone && next) {
       if ("type" in next && next.type === "project") {
-        setTimeout(() => navigate({ to: "/project/$moduleId", params: { moduleId: next.moduleId } }), 250);
+        setTimeout(
+          () => navigate({ to: "/project/$moduleId", params: { moduleId: next.moduleId } }),
+          250,
+        );
       } else {
         setTimeout(() => navigate({ to: "/lesson/$moduleId/$lessonId", params: next as any }), 250);
       }
@@ -59,12 +64,12 @@ function LessonPage() {
   return (
     <div className="min-h-screen transition-colors duration-500">
       <SiteHeader />
-      <div className={cn(
-        "container mx-auto grid gap-10 px-4 py-10 transition-all duration-500",
-        focusMode 
-          ? "max-w-3xl grid-cols-1" 
-          : "max-w-[1440px] lg:grid-cols-[260px_1fr_320px]"
-      )}>
+      <div
+        className={cn(
+          "container mx-auto grid gap-10 px-4 py-10 transition-all duration-500",
+          focusMode ? "max-w-3xl grid-cols-1" : "max-w-[1440px] lg:grid-cols-[260px_1fr_320px]",
+        )}
+      >
         {/* Left Sidebar: Navigation */}
         {!focusMode && (
           <aside className="hidden lg:block">
@@ -95,7 +100,9 @@ function LessonPage() {
                       >
                         <span
                           className={`grid h-4.5 w-4.5 shrink-0 place-items-center rounded-full text-[10px] ${
-                            done ? "bg-primary text-primary-foreground shadow-sm" : "border-2 border-muted"
+                            done
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "border-2 border-muted"
                           }`}
                         >
                           {done && <Check className="h-3 w-3" />}
@@ -106,7 +113,7 @@ function LessonPage() {
                   );
                 })}
                 {module.project && (
-                   <li className="mt-4 pt-4 border-t border-border/40">
+                  <li className="mt-4 pt-4 border-t border-border/40">
                     <Link
                       to="/project/$moduleId"
                       params={{ moduleId }}
@@ -115,7 +122,7 @@ function LessonPage() {
                       <FolderCode className="h-4 w-4" />
                       Module Project
                     </Link>
-                   </li>
+                  </li>
                 )}
               </ul>
             </div>
@@ -125,24 +132,32 @@ function LessonPage() {
         {/* Center: Content */}
         <article className="min-w-0">
           <div className="flex items-center justify-between gap-4 mb-4">
-             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary font-bold">{module.title}</p>
-             <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setFocusMode(!focusMode)}
-                className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground h-8 px-2"
-             >
-                {focusMode ? "Exit Focus" : "Focus Mode"}
-             </Button>
+            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary font-bold">
+              {module.title}
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setFocusMode(!focusMode)}
+              className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground h-8 px-2"
+            >
+              {focusMode ? "Exit Focus" : "Focus Mode"}
+            </Button>
           </div>
-          <h1 className={cn(
-            "font-extrabold tracking-tight transition-all duration-500",
-            focusMode ? "text-5xl sm:text-6xl text-center mt-10" : "text-4xl sm:text-5xl mt-3"
-          )}>{lesson.title}</h1>
-          <div className={cn(
-            "mt-4 flex items-center gap-4 text-sm text-muted-foreground transition-all duration-500",
-            focusMode && "justify-center"
-          )}>
+          <h1
+            className={cn(
+              "font-extrabold tracking-tight transition-all duration-500",
+              focusMode ? "text-5xl sm:text-6xl text-center mt-10" : "text-4xl sm:text-5xl mt-3",
+            )}
+          >
+            {lesson.title}
+          </h1>
+          <div
+            className={cn(
+              "mt-4 flex items-center gap-4 text-sm text-muted-foreground transition-all duration-500",
+              focusMode && "justify-center",
+            )}
+          >
             <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" /> {lesson.duration}
             </span>
@@ -171,17 +186,25 @@ function LessonPage() {
               <Button
                 variant={isDone ? "outline" : "default"}
                 onClick={onComplete}
-                className={cn("h-10 px-6 font-semibold transition-all", !isDone && "shadow-lg shadow-primary/20 hover:shadow-primary/30")}
+                className={cn(
+                  "h-10 px-6 font-semibold transition-all",
+                  !isDone && "shadow-lg shadow-primary/20 hover:shadow-primary/30",
+                )}
               >
                 {isDone ? (
-                  <><Check className="mr-2 h-4 w-4" /> Lesson Completed</>
+                  <>
+                    <Check className="mr-2 h-4 w-4" /> Lesson Completed
+                  </>
                 ) : (
                   "Mark as Finished"
                 )}
               </Button>
               {next ? (
                 "type" in next && next.type === "project" ? (
-                  <Button asChild className="h-10 px-6 font-semibold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90">
+                  <Button
+                    asChild
+                    className="h-10 px-6 font-semibold shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+                  >
                     <Link to="/project/$moduleId" params={{ moduleId: next.moduleId }}>
                       Module Project <ChevronRight className="ml-2 h-4 w-4" />
                     </Link>

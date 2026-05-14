@@ -13,7 +13,10 @@ export const Route = createFileRoute("/course")({
   head: () => ({
     meta: [
       { title: "Curriculum — NestMastery" },
-      { name: "description", content: "All modules and lessons: NestJS, database, Docker, and testing." },
+      {
+        name: "description",
+        content: "All modules and lessons: NestJS, database, Docker, and testing.",
+      },
     ],
   }),
 });
@@ -30,7 +33,8 @@ function CoursePage() {
         <header className="mb-10">
           <h1 className="text-4xl font-bold tracking-tight">Curriculum</h1>
           <p className="mt-2 text-muted-foreground">
-            {totalLessons} lessons across {modules.length} modules. Take them in order or jump anywhere.
+            {totalLessons} lessons across {modules.length} modules. Take them in order or jump
+            anywhere.
           </p>
           {user ? (
             <div className="mt-6 rounded-lg border border-border bg-card p-4">
@@ -44,7 +48,10 @@ function CoursePage() {
             </div>
           ) : (
             <div className="mt-6 rounded-lg border border-dashed border-border bg-card/40 p-4 text-sm text-muted-foreground">
-              <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
+              <Link
+                to="/login"
+                className="font-medium text-foreground underline underline-offset-4"
+              >
                 Sign in
               </Link>{" "}
               to track your progress as you complete lessons.
@@ -142,8 +149,12 @@ function CoursePage() {
                           <FolderCode className="h-4 w-4" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-bold text-primary">Guided Project: {m.project.title}</p>
-                          <p className="text-[10px] uppercase tracking-wider text-primary/70 font-mono">Module Practical Capstone</p>
+                          <p className="font-bold text-primary">
+                            Guided Project: {m.project.title}
+                          </p>
+                          <p className="text-[10px] uppercase tracking-wider text-primary/70 font-mono">
+                            Module Practical Capstone
+                          </p>
                         </div>
                         <div className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary uppercase">
                           Practice

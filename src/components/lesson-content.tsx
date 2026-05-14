@@ -118,7 +118,10 @@ export function LessonContent({ source, quizzes = [] }: { source: string; quizze
       {blocks.map((b, idx) => {
         if (b.type === "video")
           return (
-            <div key={idx} className="my-8 aspect-video overflow-hidden rounded-xl border border-border shadow-lg">
+            <div
+              key={idx}
+              className="my-8 aspect-video overflow-hidden rounded-xl border border-border shadow-lg"
+            >
               <iframe
                 width="100%"
                 height="100%"

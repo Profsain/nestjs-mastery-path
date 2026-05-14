@@ -32,7 +32,8 @@
   --color-code-fg: var(--code-fg);
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --gradient-hero: radial-gradient(
+  --gradient-hero:
+    radial-gradient(
       ellipse at top,
       color-mix(in oklab, var(--primary) 28%, transparent),
       transparent 60%
@@ -52,7 +53,7 @@
   --card-foreground: oklch(0.97 0.01 250);
   --popover: oklch(0.22 0.014 260);
   --popover-foreground: oklch(0.97 0.01 250);
-  --primary: oklch(0.65 0.22 22);          /* NestJS red */
+  --primary: oklch(0.65 0.22 22); /* NestJS red */
   --primary-glow: oklch(0.72 0.2 18);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.27 0.018 260);
@@ -79,19 +80,51 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html, body { background-color: var(--color-background); color: var(--color-foreground); }
-  body { font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased; }
-  ::selection { background: color-mix(in oklab, var(--primary) 40%, transparent); }
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+  body {
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 40%, transparent);
+  }
 }
 
 @layer components {
-  .prose-lesson { color: var(--color-foreground); line-height: 1.75; }
-  .prose-lesson h2 { font-size: 1.5rem; font-weight: 700; margin: 2rem 0 0.75rem; letter-spacing: -0.01em; }
-  .prose-lesson h3 { font-size: 1.15rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
-  .prose-lesson p { margin: 0.75rem 0; color: color-mix(in oklab, var(--foreground) 88%, transparent); }
-  .prose-lesson ul { margin: 0.75rem 0; padding-left: 1.25rem; list-style: disc; }
-  .prose-lesson li { margin: 0.25rem 0; }
+  .prose-lesson {
+    color: var(--color-foreground);
+    line-height: 1.75;
+  }
+  .prose-lesson h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 2rem 0 0.75rem;
+    letter-spacing: -0.01em;
+  }
+  .prose-lesson h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.5rem;
+  }
+  .prose-lesson p {
+    margin: 0.75rem 0;
+    color: color-mix(in oklab, var(--foreground) 88%, transparent);
+  }
+  .prose-lesson ul {
+    margin: 0.75rem 0;
+    padding-left: 1.25rem;
+    list-style: disc;
+  }
+  .prose-lesson li {
+    margin: 0.25rem 0;
+  }
   .prose-lesson code:not(pre code) {
     font-family: var(--font-mono);
     background: var(--code-bg);
@@ -113,13 +146,48 @@
     margin: 1rem 0;
     color: var(--code-fg);
   }
-  .prose-lesson strong { color: var(--foreground); font-weight: 600; }
-  .prose-lesson a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
-  .prose-lesson ol { margin: 0.75rem 0; padding-left: 1.5rem; list-style: decimal; }
-  .prose-lesson hr { border: 0; border-top: 1px solid var(--border); margin: 2rem 0; }
-  .lesson-table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--border); border-radius: 0.6rem; }
-  .lesson-table-wrap table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-  .lesson-table-wrap th, .lesson-table-wrap td { padding: 0.6rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); }
-  .lesson-table-wrap th { background: color-mix(in oklab, var(--primary) 8%, transparent); font-weight: 600; color: var(--foreground); }
-  .lesson-table-wrap tr:last-child td { border-bottom: 0; }
+  .prose-lesson strong {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+  .prose-lesson a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-lesson ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+    list-style: decimal;
+  }
+  .prose-lesson hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 2rem 0;
+  }
+  .lesson-table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+  }
+  .lesson-table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+  }
+  .lesson-table-wrap th,
+  .lesson-table-wrap td {
+    padding: 0.6rem 0.85rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .lesson-table-wrap th {
+    background: color-mix(in oklab, var(--primary) 8%, transparent);
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .lesson-table-wrap tr:last-child td {
+    border-bottom: 0;
+  }
 }

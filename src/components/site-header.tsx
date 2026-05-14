@@ -43,14 +43,18 @@ export function SiteHeader() {
                     <div className="hidden sm:flex flex-col items-end gap-1 cursor-help">
                       <div className="flex items-center gap-1.5">
                         <Trophy className="h-3.5 w-3.5 text-yellow-500" />
-                        <span className="font-mono text-xs font-bold uppercase tracking-wider">Level {level}</span>
+                        <span className="font-mono text-xs font-bold uppercase tracking-wider">
+                          Level {level}
+                        </span>
                       </div>
                       <Progress value={levelProgress} className="h-1 w-20 bg-muted" />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent className="bg-popover text-popover-foreground border-border/50">
                     <p className="text-xs font-bold">{totalXp} Total XP</p>
-                    <p className="text-[10px] text-muted-foreground">{xpToNextLevel} XP to Level {level + 1}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {xpToNextLevel} XP to Level {level + 1}
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
