@@ -62,13 +62,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "An interactive course covering NestJS, PostgreSQL with Prisma, Docker, and testing — from first principles to production.",
       },
-      { property: "og:title", content: "NestMastery — Master NestJS" },
+      { property: "og:title", content: "NestMastery — Master NestJS, from beginner to production" },
       {
         property: "og:description",
         content:
           "NestJS, databases, Docker, and testing — taught the way senior engineers actually build.",
       },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "NestMastery — Master NestJS, from beginner to production" },
+      { name: "description", content: "Learn Nest.js backend development from beginner to mastery with this comprehensive online course." },
+      { property: "og:description", content: "Learn Nest.js backend development from beginner to mastery with this comprehensive online course." },
+      { name: "twitter:description", content: "Learn Nest.js backend development from beginner to mastery with this comprehensive online course." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f72ff02e-bae5-41d3-871b-eb995c1724ec/id-preview-1807eccc--127849ba-b02d-4046-a426-b1775d5020bb.lovable.app-1778745221552.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/f72ff02e-bae5-41d3-871b-eb995c1724ec/id-preview-1807eccc--127849ba-b02d-4046-a426-b1775d5020bb.lovable.app-1778745221552.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
