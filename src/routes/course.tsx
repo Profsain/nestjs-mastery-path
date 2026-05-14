@@ -89,7 +89,7 @@ function CoursePage() {
 
                 {/* YouTube tutorial card */}
                 <a
-                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(m.video.query)}`}
+                  href={`https://www.youtube.com/results?search_query=${encodeURIComponent(m.video.query ?? m.video.title)}`}
                   target="_blank"
                   rel="noreferrer"
                   className="mb-4 flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/50"
