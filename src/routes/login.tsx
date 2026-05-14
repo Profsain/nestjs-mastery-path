@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -99,6 +100,29 @@ function LoginPage() {
               {loading ? "..." : mode === "signin" ? "Sign in" : "Create account"}
             </Button>
           </form>
+          <div className="my-4 flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="h-px flex-1 bg-border" />
+            <span>OR</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={loading}
+            onClick={async () => {
+              setLoading(true);
+              const result = await lovable.auth.signInWithOAuth("google", {
+                redirect_uri: `${window.location.origin}/course`,
+              });
+              if (result.error) {
+                toast.error(result.error.message ?? "Google sign-in failed");
+                setLoading(false);
+              }
+            }}
+          >
+            Continue with Google
+          </Button>
           <button
             type="button"
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}

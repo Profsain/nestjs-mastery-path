@@ -59,6 +59,9 @@ export function SiteHeader() {
                 </Tooltip>
               </TooltipProvider>
 
+              <Button asChild variant="ghost" size="sm" className="h-9 px-3">
+                <Link to="/profile">Profile</Link>
+              </Button>
               <Button variant="ghost" size="sm" onClick={signOut} className="h-9 px-3">
                 <LogOut className="mr-2 h-3.5 w-3.5" /> Sign out
               </Button>
