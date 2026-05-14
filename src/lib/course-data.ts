@@ -14,6 +14,7 @@ export type GuidedProject = {
 };
 
 export type QuizQuestion = {
+  id?: string;
   question: string;
   options: string[];
   correctAnswer: number;
@@ -36,8 +37,9 @@ export type Lesson = {
 
 export type ModuleVideo = {
   title: string;
-  youtubeId: string;
+  youtubeId?: string;
   channel?: string;
+  query?: string;
 };
 
 export type Module = {
