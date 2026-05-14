@@ -15,4 +15,12 @@ export default defineConfig({
       entry: "server",
     },
   },
+  vite: {
+    ssr: {
+      noExternal: true, // Bundle all dependencies for Vercel Edge compatibility
+    },
+    build: {
+      chunkSizeWarningLimit: 1000,
+    }
+  }
 });
